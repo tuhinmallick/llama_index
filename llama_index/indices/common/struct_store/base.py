@@ -72,12 +72,12 @@ class SQLDocumentContextBuilder:
         documents_dict: Dict[str, List[BaseNode]],
     ) -> Dict[str, str]:
         """Build context for all tables in the database."""
-        context_dict = {}
-        for table_name in self._sql_database.get_usable_table_names():
-            context_dict[table_name] = self.build_table_context_from_documents(
+        return {
+            table_name: self.build_table_context_from_documents(
                 documents_dict[table_name], table_name
             )
-        return context_dict
+            for table_name in self._sql_database.get_usable_table_names()
+        }
 
     def build_table_context_from_documents(
         self,
@@ -167,7 +167,7 @@ class BaseStructDatapointExtractor:
             else:
                 if len(value) == 0:
                     continue
-                if not isinstance(value, col_types_map[field]):
+                if not isinstance(value, expected_type):
                     continue
             new_fields[field] = clean_value
         return new_fields

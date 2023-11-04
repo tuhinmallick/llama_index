@@ -31,7 +31,7 @@ try:
     cli.close()
 
     timescale_not_available = False
-except (ImportError, Exception):
+except Exception:
     timescale_not_available = True
 
 
@@ -132,10 +132,7 @@ async def test_add_to_db_and_query(
         tvs.add(node_embeddings)
     assert isinstance(tvs, TimescaleVectorStore)
     q = VectorStoreQuery(query_embedding=[1] * 1536, similarity_top_k=1)
-    if use_async:
-        res = await tvs.aquery(q)
-    else:
-        res = tvs.query(q)
+    res = await tvs.aquery(q) if use_async else tvs.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "aaa"
@@ -160,10 +157,7 @@ async def test_add_to_db_and_query_with_metadata_filters(
     q = VectorStoreQuery(
         query_embedding=[0.5] * 1536, similarity_top_k=10, filters=filters
     )
-    if use_async:
-        res = await tvs.aquery(q)
-    else:
-        res = tvs.query(q)
+    res = await tvs.aquery(q) if use_async else tvs.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "bbb"
@@ -187,19 +181,13 @@ async def test_async_add_to_db_query_and_delete(
 
     q = VectorStoreQuery(query_embedding=[0.1] * 1536, similarity_top_k=1)
 
-    if use_async:
-        res = await tvs.aquery(q)
-    else:
-        res = tvs.query(q)
+    res = await tvs.aquery(q) if use_async else tvs.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "bbb"
     tvs.delete("bbb")
 
-    if use_async:
-        res = await tvs.aquery(q)
-    else:
-        res = tvs.query(q)
+    res = await tvs.aquery(q) if use_async else tvs.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "aaa"
@@ -249,10 +237,7 @@ async def test_time_partitioning_default_uuid(
 
     q = VectorStoreQuery(query_embedding=[0.1] * 1536, similarity_top_k=1)
 
-    if use_async:
-        res = await tvs_tp.aquery(q)
-    else:
-        res = tvs_tp.query(q)
+    res = await tvs_tp.aquery(q) if use_async else tvs_tp.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "bbb"
@@ -279,10 +264,7 @@ async def test_time_partitioning_explicit_uuid(
 
     q = VectorStoreQuery(query_embedding=[0.1] * 1536, similarity_top_k=1)
 
-    if use_async:
-        res = await tvs_tp.aquery(q)
-    else:
-        res = tvs_tp.query(q)
+    res = await tvs_tp.aquery(q) if use_async else tvs_tp.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == node_embeddings[1].node_id

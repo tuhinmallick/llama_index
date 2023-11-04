@@ -74,8 +74,8 @@ class BaseToolSpec:
                 metadata = func_to_metadata_mapping.get(func_spec[0], None)
                 if metadata is None:
                     metadata = func_to_metadata_mapping.get(func_spec[1], None)
-                    if metadata is None:
-                        metadata = self.get_metadata_from_fn_name(func_spec[0])
+                if metadata is None:
+                    metadata = self.get_metadata_from_fn_name(func_spec[0])
             else:
                 raise ValueError(
                     "spec_functions must be of type: List[Union[str, Tuple[str, str]]]"

@@ -100,15 +100,7 @@ class LlamaCPP(CustomLLM):
         }
 
         # check if model is cached
-        if model_path is not None:
-            if not os.path.exists(model_path):
-                raise ValueError(
-                    "Provided model path does not exist. "
-                    "Please check the path or provide a model_url to download."
-                )
-            else:
-                self._model = Llama(model_path=model_path, **model_kwargs)
-        else:
+        if model_path is None:
             cache_dir = get_cache_dir()
             model_url = model_url or self._get_model_path_for_version()
             model_name = os.path.basename(model_url)
@@ -120,6 +112,13 @@ class LlamaCPP(CustomLLM):
 
             self._model = Llama(model_path=model_path, **model_kwargs)
 
+        elif not os.path.exists(model_path):
+            raise ValueError(
+                "Provided model path does not exist. "
+                "Please check the path or provide a model_url to download."
+            )
+        else:
+            self._model = Llama(model_path=model_path, **model_kwargs)
         model_path = model_path
         messages_to_prompt = messages_to_prompt or generic_messages_to_prompt
         completion_to_prompt = completion_to_prompt or (lambda x: x)

@@ -46,14 +46,12 @@ class TestToolSpec(BaseToolSpec):
 
     def get_fn_schema_from_fn_name(self, fn_name: str) -> Type[BaseModel]:
         """Return map from function name."""
-        if fn_name == "foo":
-            return FooSchema
-        elif fn_name == "afoo":
-            return FooSchema
+        if fn_name == "abc":
+            return AbcSchema
         elif fn_name == "bar":
             return BarSchema
-        elif fn_name == "abc":
-            return AbcSchema
+        elif fn_name in {"foo", "afoo"}:
+            return FooSchema
         else:
             raise ValueError(f"Invalid function name: {fn_name}")
 

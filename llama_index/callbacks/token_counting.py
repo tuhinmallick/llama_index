@@ -155,22 +155,22 @@ class TokenCountingHandler(BaseCallbackHandler):
     @property
     def total_llm_token_count(self) -> int:
         """Get the current total LLM token count."""
-        return sum([x.total_token_count for x in self.llm_token_counts])
+        return sum(x.total_token_count for x in self.llm_token_counts)
 
     @property
     def prompt_llm_token_count(self) -> int:
         """Get the current total LLM prompt token count."""
-        return sum([x.prompt_token_count for x in self.llm_token_counts])
+        return sum(x.prompt_token_count for x in self.llm_token_counts)
 
     @property
     def completion_llm_token_count(self) -> int:
         """Get the current total LLM completion token count."""
-        return sum([x.completion_token_count for x in self.llm_token_counts])
+        return sum(x.completion_token_count for x in self.llm_token_counts)
 
     @property
     def total_embedding_token_count(self) -> int:
         """Get the current total Embedding token count."""
-        return sum([x.total_token_count for x in self.embedding_token_counts])
+        return sum(x.total_token_count for x in self.embedding_token_counts)
 
     def reset_counts(self) -> None:
         """Reset the token counts."""

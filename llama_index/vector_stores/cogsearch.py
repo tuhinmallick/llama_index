@@ -297,41 +297,39 @@ class CognitiveSearchVectorStore(VectorStore):
         self._search_client: SearchClient = cast(SearchClient, None)
         self.embedding_dimensionality = embedding_dimensionality
 
-        # Validate search_or_index_client
-        if search_or_index_client is not None:
-            if isinstance(search_or_index_client, SearchIndexClient):
-                # If SearchIndexClient is supplied so must index_name
-                self._index_client = cast(SearchIndexClient, search_or_index_client)
-
-                if not index_name:
-                    raise ValueError(
-                        "index_name must be supplied if search_or_index_client is of "
-                        "type azure.search.documents.SearchIndexClient"
-                    )
-
-                self._search_client = self._index_client.get_search_client(
-                    index_name=index_name
-                )
-
-            elif isinstance(search_or_index_client, SearchClient):
-                self._search_client = cast(SearchClient, search_or_index_client)
-
-                # Validate index_name
-                if index_name:
-                    raise ValueError(
-                        "index_name cannot be supplied if search_or_index_client "
-                        "is of type azure.search.documents.SearchClient"
-                    )
-
-            if not self._index_client and not self._search_client:
-                raise ValueError(
-                    "search_or_index_client must be of type "
-                    "azure.search.documents.SearchClient or "
-                    "azure.search.documents.SearchIndexClient"
-                )
-        else:
+        if search_or_index_client is None:
             raise ValueError("search_or_index_client not specified")
 
+        if isinstance(search_or_index_client, SearchIndexClient):
+            # If SearchIndexClient is supplied so must index_name
+            self._index_client = cast(SearchIndexClient, search_or_index_client)
+
+            if not index_name:
+                raise ValueError(
+                    "index_name must be supplied if search_or_index_client is of "
+                    "type azure.search.documents.SearchIndexClient"
+                )
+
+            self._search_client = self._index_client.get_search_client(
+                index_name=index_name
+            )
+
+        elif isinstance(search_or_index_client, SearchClient):
+            self._search_client = cast(SearchClient, search_or_index_client)
+
+            # Validate index_name
+            if index_name:
+                raise ValueError(
+                    "index_name cannot be supplied if search_or_index_client "
+                    "is of type azure.search.documents.SearchClient"
+                )
+
+        if not self._index_client and not self._search_client:
+            raise ValueError(
+                "search_or_index_client must be of type "
+                "azure.search.documents.SearchClient or "
+                "azure.search.documents.SearchIndexClient"
+            )
         if (
             index_management == IndexManagement.CREATE_IF_NOT_EXISTS
             and not self._index_client
@@ -379,17 +377,12 @@ class CognitiveSearchVectorStore(VectorStore):
     def _default_index_mapping(
         self, enriched_doc: Dict[str, str], metadata: Dict[str, Any]
     ) -> Dict[str, str]:
-        index_doc: Dict[str, str] = {}
-
-        for field in self._field_mapping:
-            index_doc[self._field_mapping[field]] = enriched_doc[field]
-
-        for metadata_field_name, (
-            index_field_name,
-            _,
-        ) in self._metadata_to_index_field_map.items():
-            metadata_value = metadata.get(metadata_field_name)
-            if metadata_value:
+        index_doc: Dict[str, str] = {
+            self._field_mapping[field]: enriched_doc[field]
+            for field in self._field_mapping
+        }
+        for metadata_field_name, (index_field_name, _) in self._metadata_to_index_field_map.items():
+            if metadata_value := metadata.get(metadata_field_name):
                 index_doc[index_field_name] = metadata_value
 
         return index_doc
@@ -439,9 +432,10 @@ class CognitiveSearchVectorStore(VectorStore):
 
     def _create_index_document(self, node: BaseNode) -> Dict[str, Any]:
         """Create Cognitive Search index document from embedding result."""
-        doc: Dict[str, Any] = {}
-        doc["id"] = node.node_id
-        doc["chunk"] = node.get_content(metadata_mode=MetadataMode.NONE) or ""
+        doc: Dict[str, Any] = {
+            "id": node.node_id,
+            "chunk": node.get_content(metadata_mode=MetadataMode.NONE) or "",
+        }
         doc["embedding"] = node.get_embedding()
         doc["doc_id"] = node.ref_doc_id
 
@@ -468,12 +462,11 @@ class CognitiveSearchVectorStore(VectorStore):
 
         docs_to_delete = []
         for result in results:
-            doc = {}
-            doc["id"] = result[self._field_mapping["id"]]
+            doc = {"id": result[self._field_mapping["id"]]}
             logger.debug(f"Found document to delete: {doc}")
             docs_to_delete.append(doc)
 
-        if len(docs_to_delete) > 0:
+        if docs_to_delete:
             logger.debug(f"Deleting {len(docs_to_delete)} documents")
             self._search_client.delete_documents(docs_to_delete)
 
@@ -499,7 +492,7 @@ class CognitiveSearchVectorStore(VectorStore):
 
             index_field = metadata_mapping[0]
 
-            if len(odata_filter) > 0:
+            if odata_filter:
                 odata_filter.append(" and ")
             if isinstance(f.value, str):
                 escaped_value = "".join([("''" if s == "'" else s) for s in f.value])

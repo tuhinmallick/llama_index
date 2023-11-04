@@ -23,10 +23,7 @@ logger = logging.getLogger(__name__)
 
 def _to_chroma_filter(standard_filters: MetadataFilters) -> dict:
     """Translate standard metadata filters to Chroma specific spec."""
-    filters = {}
-    for filter in standard_filters.filters:
-        filters[filter.key] = filter.value
-    return filters
+    return {filter.key: filter.value for filter in standard_filters.filters}
 
 
 import_err_msg = "`chromadb` package not found, please run `pip install chromadb`"
@@ -213,17 +210,17 @@ class ChromaVectorStore(BasePydanticVectorStore):
             similarity_top_k (int): top k most similar nodes
 
         """
-        if query.filters is not None:
-            if "where" in kwargs:
-                raise ValueError(
-                    "Cannot specify metadata filters via both query and kwargs. "
-                    "Use kwargs only for chroma specific items that are "
-                    "not supported via the generic query interface."
-                )
-            where = _to_chroma_filter(query.filters)
-        else:
+        if query.filters is None:
             where = kwargs.pop("where", {})
 
+        elif "where" in kwargs:
+            raise ValueError(
+                "Cannot specify metadata filters via both query and kwargs. "
+                "Use kwargs only for chroma specific items that are "
+                "not supported via the generic query interface."
+            )
+        else:
+            where = _to_chroma_filter(query.filters)
         results = self._collection.query(
             query_embeddings=query.query_embedding,
             n_results=query.similarity_top_k,

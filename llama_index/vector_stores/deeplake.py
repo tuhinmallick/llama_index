@@ -197,8 +197,5 @@ class DeepLakeVectorStore(VectorStoreBase):
         similarities = data["score"]
         ids = data[self._id_tensor_name]
         metadatas = data["metadata"]
-        nodes = []
-        for metadata in metadatas:
-            nodes.append(metadata_dict_to_node(metadata))
-
+        nodes = [metadata_dict_to_node(metadata) for metadata in metadatas]
         return VectorStoreQueryResult(nodes=nodes, similarities=similarities, ids=ids)

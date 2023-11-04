@@ -37,7 +37,7 @@ class BedrockEmbedding(BaseEmbedding):
         )
 
     @classmethod
-    def class_name(self) -> str:
+    def class_name(cls) -> str:
         return "BedrockEmbedding"
 
     def set_credentials(

@@ -95,13 +95,13 @@ class DynamoDBVectorStore(VectorStore):
             ref_doc_id (str): The doc_id of the document to delete.
 
         """
-        text_ids_to_delete = set()
-        for text_id, item in self._kvstore.get_all(
-            collection=self._collection_text_id_to_doc_id
-        ).items():
-            if ref_doc_id == item[self._key_value]:
-                text_ids_to_delete.add(text_id)
-
+        text_ids_to_delete = {
+            text_id
+            for text_id, item in self._kvstore.get_all(
+                collection=self._collection_text_id_to_doc_id
+            ).items()
+            if ref_doc_id == item[self._key_value]
+        }
         for text_id in text_ids_to_delete:
             self._kvstore.delete(key=text_id, collection=self._collection_embedding)
             self._kvstore.delete(

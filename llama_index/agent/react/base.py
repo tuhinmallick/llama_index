@@ -150,15 +150,13 @@ class ReActAgent(BaseAgent):
         if output.message.content is None:
             raise ValueError("Got empty message.")
         message_content = output.message.content
-        current_reasoning = []
         try:
             reasoning_step = self._output_parser.parse(message_content, is_streaming)
         except BaseException as exc:
             raise ValueError(f"Could not parse output: {message_content}") from exc
         if self._verbose:
             print_text(f"{reasoning_step.get_content()}\n", color="pink")
-        current_reasoning.append(reasoning_step)
-
+        current_reasoning = [reasoning_step]
         if reasoning_step.is_done:
             return message_content, current_reasoning, True
 
@@ -245,7 +243,7 @@ class ReActAgent(BaseAgent):
         current_reasoning: List[BaseReasoningStep],
     ) -> AgentChatResponse:
         """Get response from reasoning steps."""
-        if len(current_reasoning) == 0:
+        if not current_reasoning:
             raise ValueError("No reasoning steps were taken.")
         elif len(current_reasoning) == self._max_iterations:
             raise ValueError("Reached max iterations.")
@@ -266,15 +264,11 @@ class ReActAgent(BaseAgent):
         Returns:
             bool: Boolean on whether the chunk is the start of the final response
         """
-        latest_content = chunk.message.content
-        if latest_content:
-            if not latest_content.startswith(
-                "Thought"
-            ):  # doesn't follow thought-action format
+        if latest_content := chunk.message.content:
+            if not latest_content.startswith("Thought"):
                 return True
-            else:
-                if "Answer: " in latest_content:
-                    return True
+            if "Answer: " in latest_content:
+                return True
         return False
 
     def _add_back_chunk_to_stream(

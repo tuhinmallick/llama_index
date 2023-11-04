@@ -28,10 +28,7 @@ logger = logging.getLogger(__name__)
 
 def _to_mongodb_filter(standard_filters: MetadataFilters) -> Dict:
     """Convert from standard dataclass to filter dict."""
-    filters = {}
-    for filter in standard_filters.filters:
-        filters[filter.key] = filter.value
-    return filters
+    return {filter.key: filter.value for filter in standard_filters.filters}
 
 
 class MongoDBAtlasVectorSearch(VectorStore):
@@ -83,14 +80,14 @@ class MongoDBAtlasVectorSearch(VectorStore):
 
         if mongodb_client is not None:
             self._mongodb_client = cast(pymongo.MongoClient, mongodb_client)
-        else:
-            if "MONGO_URI" not in os.environ:
-                raise ValueError(
-                    "Must specify MONGO_URI via env variable "
-                    "if not directly passing in client."
-                )
+        elif "MONGO_URI" in os.environ:
             self._mongodb_client = pymongo.MongoClient(os.environ["MONGO_URI"])
 
+        else:
+            raise ValueError(
+                "Must specify MONGO_URI via env variable "
+                "if not directly passing in client."
+            )
         self._collection = self._mongodb_client[db_name][collection_name]
         self._index_name = index_name
         self._embedding_key = embedding_key
@@ -144,7 +141,8 @@ class MongoDBAtlasVectorSearch(VectorStore):
         """
         # delete by filtering on the doc_id metadata
         self._collection.delete_one(
-            filter={self._metadata_key + ".ref_doc_id": ref_doc_id}, **delete_kwargs
+            filter={f"{self._metadata_key}.ref_doc_id": ref_doc_id},
+            **delete_kwargs,
         )
 
     @property

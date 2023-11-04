@@ -73,11 +73,10 @@ class SQLRetriever(BaseRetriever):
         raw_response_str, metadata = self._sql_database.run_sql(query_bundle.query_str)
         if self._return_raw:
             return [NodeWithScore(node=TextNode(text=raw_response_str))], metadata
-        else:
-            # return formatted
-            results = metadata["result"]
-            col_keys = metadata["col_keys"]
-            return self._format_node_results(results, col_keys), metadata
+        # return formatted
+        results = metadata["result"]
+        col_keys = metadata["col_keys"]
+        return self._format_node_results(results, col_keys), metadata
 
     async def aretrieve_with_metadata(
         self, str_or_query_bundle: QueryType
@@ -233,19 +232,17 @@ class NLSQLRetriever(BaseRetriever, PromptMixin):
         context_query_kwargs = context_query_kwargs or {}
         if table_retriever is not None:
             return lambda query_str: cast(Any, table_retriever).retrieve(query_str)
-        else:
-            if tables is not None:
-                table_names: List[str] = [
-                    t.name if isinstance(t, Table) else t for t in tables
-                ]
-            else:
-                table_names = list(sql_database.get_usable_table_names())
-            context_strs = [context_query_kwargs.get(t, None) for t in table_names]
-            table_schemas = [
-                SQLTableSchema(table_name=t, context_str=c)
-                for t, c in zip(table_names, context_strs)
-            ]
-            return lambda _: table_schemas
+        table_names = (
+            [t.name if isinstance(t, Table) else t for t in tables]
+            if tables is not None
+            else list(sql_database.get_usable_table_names())
+        )
+        context_strs = [context_query_kwargs.get(t, None) for t in table_names]
+        table_schemas = [
+            SQLTableSchema(table_name=t, context_str=c)
+            for t, c in zip(table_names, context_strs)
+        ]
+        return lambda _: table_schemas
 
     def retrieve_with_metadata(
         self, str_or_query_bundle: QueryType

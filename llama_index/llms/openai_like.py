@@ -49,18 +49,17 @@ class OpenAILike(OpenAI):
 
     @property
     def _tokenizer(self) -> Tokenizer:
-        if not self.tokenizer:
-            try:
-                from transformers import AutoTokenizer
-            except ImportError as exc:
-                raise ImportError(
-                    "Please install transformers (pip install transformers) to use "
-                    "huggingface tokenizers with OpenAILike."
-                ) from exc
-
-            return AutoTokenizer.from_pretrained(self._get_model_name())
-        else:
+        if self.tokenizer:
             return self.tokenizer
+        try:
+            from transformers import AutoTokenizer
+        except ImportError as exc:
+            raise ImportError(
+                "Please install transformers (pip install transformers) to use "
+                "huggingface tokenizers with OpenAILike."
+            ) from exc
+
+        return AutoTokenizer.from_pretrained(self._get_model_name())
 
     @classmethod
     def class_name(cls) -> str:

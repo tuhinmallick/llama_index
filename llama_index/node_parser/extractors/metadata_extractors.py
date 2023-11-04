@@ -110,10 +110,7 @@ class MetadataExtractor(BaseExtractor):
             excluded_llm_metadata_keys (Optional[List[str]]):
                 keys to exclude from llm metadata
         """
-        if self.in_place:
-            new_nodes = nodes
-        else:
-            new_nodes = [deepcopy(node) for node in nodes]
+        new_nodes = nodes if self.in_place else [deepcopy(node) for node in nodes]
         for extractor in self.extractors:
             cur_metadata_list = extractor.extract(new_nodes)
             for idx, node in enumerate(new_nodes):
@@ -124,8 +121,8 @@ class MetadataExtractor(BaseExtractor):
                 node.excluded_embed_metadata_keys.extend(excluded_embed_metadata_keys)
             if excluded_llm_metadata_keys is not None:
                 node.excluded_llm_metadata_keys.extend(excluded_llm_metadata_keys)
-            if not self.disable_template_rewrite:
-                if isinstance(node, TextNode):
+            if isinstance(node, TextNode):
+                if not self.disable_template_rewrite:
                     cast(TextNode, node).text_template = self.node_text_template
         return new_nodes
 
@@ -184,7 +181,7 @@ class TitleExtractor(MetadataFeatureExtractor):
 
         if llm is not None:
             llm_predictor = LLMPredictor(llm=llm)
-        elif llm_predictor is None and llm is None:
+        elif llm_predictor is None:
             llm_predictor = LLMPredictor()
 
         super().__init__(
@@ -208,7 +205,7 @@ class TitleExtractor(MetadataFeatureExtractor):
                 continue
             nodes_to_extract_title.append(node)
 
-        if len(nodes_to_extract_title) == 0:
+        if not nodes_to_extract_title:
             # Could not extract title
             return []
 
@@ -221,7 +218,7 @@ class TitleExtractor(MetadataFeatureExtractor):
         ]
         if len(nodes_to_extract_title) > 1:
             titles = reduce(
-                lambda x, y: x + "," + y, title_candidates[1:], title_candidates[0]
+                lambda x, y: f"{x},{y}", title_candidates[1:], title_candidates[0]
             )
 
             title = self.llm_predictor.predict(
@@ -264,7 +261,7 @@ class KeywordExtractor(MetadataFeatureExtractor):
 
         if llm is not None:
             llm_predictor = LLMPredictor(llm=llm)
-        elif llm_predictor is None and llm is None:
+        elif llm_predictor is None:
             llm_predictor = LLMPredictor()
 
         super().__init__(llm_predictor=llm_predictor, keywords=keywords, **kwargs)
@@ -351,7 +348,7 @@ class QuestionsAnsweredExtractor(MetadataFeatureExtractor):
 
         if llm is not None:
             llm_predictor = LLMPredictor(llm=llm)
-        elif llm_predictor is None and llm is None:
+        elif llm_predictor is None:
             llm_predictor = LLMPredictor()
 
         super().__init__(
@@ -437,11 +434,11 @@ class SummaryExtractor(MetadataFeatureExtractor):
     ):
         if llm is not None:
             llm_predictor = LLMPredictor(llm=llm)
-        elif llm_predictor is None and llm is None:
+        elif llm_predictor is None:
             llm_predictor = LLMPredictor()
 
         # validation
-        if not all(s in ["self", "prev", "next"] for s in summaries):
+        if any(s not in ["self", "prev", "next"] for s in summaries):
             raise ValueError("summaries must be one of ['self', 'prev', 'next']")
         self._self_summary = "self" in summaries
         self._prev_summary = "prev" in summaries

@@ -67,7 +67,7 @@ class MboxReader(BaseReader):
         mbox = mailbox.mbox(file, factory=bytes_parser)  # type: ignore
 
         # Iterate through all messages
-        for _, _msg in enumerate(mbox):
+        for _msg in mbox:
             try:
                 msg: mailbox.mboxMessage = _msg
                 # Parse multipart messages

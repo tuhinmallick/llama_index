@@ -124,7 +124,7 @@ class S3DBKVStore(BaseKVStore):
         """
         obj_key = self._get_object_key(collection, key)
         matched_objs = list(self._bucket.objects.filter(Prefix=obj_key).limit(1))
-        if len(matched_objs) == 0:
+        if not matched_objs:
             return False
         obj = matched_objs[0]
         obj.delete()

@@ -68,13 +68,7 @@ class TimescaleVectorStore(VectorStore):
     def _create_clients(self) -> None:
         from timescale_vector import client
 
-        # in the normal case doesn't restrict the id type to even uuid.
-        # Allow arbitrary text
-        id_type = "TEXT"
-        if self.time_partition_interval is not None:
-            # for time partitioned tables, the id type must be UUID v1
-            id_type = "UUID"
-
+        id_type = "UUID" if self.time_partition_interval is not None else "TEXT"
         self._sync_client = client.Sync(
             self.service_url,
             self.table_name,
@@ -136,11 +130,7 @@ class TimescaleVectorStore(VectorStore):
         if metadata_filters is None:
             return None
 
-        res = {}
-        for filter in metadata_filters.filters:
-            res[filter.key] = filter.value
-
-        return res
+        return {filter.key: filter.value for filter in metadata_filters.filters}
 
     def _db_rows_to_query_result(self, rows: List) -> VectorStoreQueryResult:
         from timescale_vector import client
@@ -181,7 +171,7 @@ class TimescaleVectorStore(VectorStore):
             ]
             if key in kwargs
         }
-        if not constructor_args or len(constructor_args) == 0:
+        if not constructor_args:
             return None
 
         try:

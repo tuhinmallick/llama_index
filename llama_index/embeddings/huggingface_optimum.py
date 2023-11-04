@@ -59,19 +59,19 @@ class OptimumEmbedding(BaseEmbedding):
                     "Please provide max_length."
                 )
 
-        if pooling not in ["cls", "mean"]:
+        if pooling in {"cls", "mean"}:
+            super().__init__(
+                embed_batch_size=embed_batch_size,
+                callback_manager=callback_manager,
+                folder_name=folder_name,
+                max_length=max_length,
+                pooling=pooling,
+                normalize=normalize,
+                query_instruction=query_instruction,
+                text_instruction=text_instruction,
+            )
+        else:
             raise ValueError(f"Pooling {pooling} not supported.")
-
-        super().__init__(
-            embed_batch_size=embed_batch_size,
-            callback_manager=callback_manager,
-            folder_name=folder_name,
-            max_length=max_length,
-            pooling=pooling,
-            normalize=normalize,
-            query_instruction=query_instruction,
-            text_instruction=text_instruction,
-        )
 
     @classmethod
     def class_name(cls) -> str:

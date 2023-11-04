@@ -68,9 +68,7 @@ class RedisKVStore(BaseKVStore):
 
         """
         val_str = self._redis_client.hget(name=collection, key=key)
-        if val_str is None:
-            return None
-        return json.loads(val_str)
+        return None if val_str is None else json.loads(val_str)
 
     def get_all(self, collection: str = DEFAULT_COLLECTION) -> Dict[str, dict]:
         """Get all values from the store."""
@@ -89,7 +87,7 @@ class RedisKVStore(BaseKVStore):
 
         """
         deleted_num = self._redis_client.hdel(collection, key)
-        return bool(deleted_num > 0)
+        return deleted_num > 0
 
     @classmethod
     def from_host_and_port(

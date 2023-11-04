@@ -121,11 +121,14 @@ class TypesenseVectorStore(VectorStore):
     @staticmethod
     def _to_typesense_filter(standard_filters: MetadataFilters) -> str:
         """Convert from standard dataclass to typesense filter dict."""
-        for filter in standard_filters.filters:
-            if filter.key == "filter_by":
-                return str(filter.value)
-
-        return ""
+        return next(
+            (
+                str(filter.value)
+                for filter in standard_filters.filters
+                if filter.key == "filter_by"
+            ),
+            "",
+        )
 
     def add(
         self,
@@ -187,21 +190,20 @@ class TypesenseVectorStore(VectorStore):
             typesense_filter = ""
 
         if query.mode is not VectorStoreQueryMode.TEXT_SEARCH:
-            if query.query_embedding:
-                embedded_query = [str(x) for x in query.query_embedding]
-                search_requests = {
-                    "searches": [
-                        {
-                            "collection": self._collection_name,
-                            "q": "*",
-                            "vector_query": f'vec:([{",".join(embedded_query)}],'
-                            + f"k:{query.similarity_top_k})",
-                            "filter_by": typesense_filter,
-                        }
-                    ]
-                }
-            else:
+            if not query.query_embedding:
                 raise ValueError("Vector search requires a query embedding")
+            embedded_query = [str(x) for x in query.query_embedding]
+            search_requests = {
+                "searches": [
+                    {
+                        "collection": self._collection_name,
+                        "q": "*",
+                        "vector_query": f'vec:([{",".join(embedded_query)}],'
+                        + f"k:{query.similarity_top_k})",
+                        "filter_by": typesense_filter,
+                    }
+                ]
+            }
         if query.mode is VectorStoreQueryMode.TEXT_SEARCH:
             if query.query_str:
                 search_requests = {
@@ -220,10 +222,7 @@ class TypesenseVectorStore(VectorStore):
 
         top_k_nodes = []
         top_k_ids = []
-        top_k_scores = None
-        if query.mode is not VectorStoreQueryMode.TEXT_SEARCH:
-            top_k_scores = []
-
+        top_k_scores = None if query.mode is VectorStoreQueryMode.TEXT_SEARCH else []
         for hit in response["results"][0]["hits"]:
             document = hit["document"]
             id = document["id"]

@@ -27,12 +27,14 @@ def evaluate(
         retrieved_ids = [node.node.node_id for node in retrieved_nodes]
         expected_id = relevant_docs[query_id][0]
 
-        rank = None
-        for idx, id in enumerate(retrieved_ids):
-            if id == expected_id:
-                rank = idx + 1
-                break
-
+        rank = next(
+            (
+                idx + 1
+                for idx, id in enumerate(retrieved_ids)
+                if id == expected_id
+            ),
+            None,
+        )
         is_hit = rank is not None  # assume 1 relevant doc
         mrr = 0 if rank is None else 1 / rank
 

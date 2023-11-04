@@ -116,9 +116,6 @@ class DocumentSummaryIndex(BaseIndex[IndexDocumentSummary]):
             DocumentSummaryIndexLLMRetriever,
         )
 
-        LLMRetriever = DocumentSummaryIndexLLMRetriever
-        EmbeddingRetriever = DocumentSummaryIndexEmbeddingRetriever
-
         if retriever_mode == _RetrieverMode.EMBEDDING:
             if not self._embed_summaries:
                 raise ValueError(
@@ -127,11 +124,13 @@ class DocumentSummaryIndex(BaseIndex[IndexDocumentSummary]):
 
             if "service_context" not in kwargs:
                 kwargs["service_context"] = self._service_context
+            EmbeddingRetriever = DocumentSummaryIndexEmbeddingRetriever
+
             return EmbeddingRetriever(self, **kwargs)
-        if retriever_mode == _RetrieverMode.LLM:
-            return LLMRetriever(self, **kwargs)
-        else:
+        if retriever_mode != _RetrieverMode.LLM:
             raise ValueError(f"Unknown retriever mode: {retriever_mode}")
+        LLMRetriever = DocumentSummaryIndexLLMRetriever
+        return LLMRetriever(self, **kwargs)
 
     def get_document_summary(self, doc_id: str) -> str:
         """Get document summary by doc id.
@@ -238,11 +237,8 @@ class DocumentSummaryIndex(BaseIndex[IndexDocumentSummary]):
 
         all_ref_doc_info = {}
         for ref_doc_id in ref_doc_ids:
-            ref_doc_info = self.docstore.get_ref_doc_info(ref_doc_id)
-            if not ref_doc_info:
-                continue
-
-            all_ref_doc_info[ref_doc_id] = ref_doc_info
+            if ref_doc_info := self.docstore.get_ref_doc_info(ref_doc_id):
+                all_ref_doc_info[ref_doc_id] = ref_doc_info
         return all_ref_doc_info
 
 

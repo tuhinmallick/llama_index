@@ -67,7 +67,7 @@ class FeedbackQueryTransformation(BaseQueryTransform):
         if self.evaluation.response is None or self.evaluation.feedback is None:
             raise ValueError("Evaluation result must contain response and feedback.")
 
-        if self.evaluation.feedback == "YES" or self.evaluation.feedback == "NO":
+        if self.evaluation.feedback in ["YES", "NO"]:
             new_query = (
                 orig_query_str
                 + "\n----------------\n"
@@ -105,12 +105,11 @@ class FeedbackQueryTransformation(BaseQueryTransform):
         """Resynthesize query given feedback."""
         if feedback is None:
             return query_str
-        else:
-            new_query_str = self.llm_predictor.predict(
-                self.resynthesis_prompt,
-                query_str=query_str,
-                response=response,
-                feedback=feedback,
-            )
-            logger.debug("Resynthesized query: %s", new_query_str)
-            return new_query_str
+        new_query_str = self.llm_predictor.predict(
+            self.resynthesis_prompt,
+            query_str=query_str,
+            response=response,
+            feedback=feedback,
+        )
+        logger.debug("Resynthesized query: %s", new_query_str)
+        return new_query_str

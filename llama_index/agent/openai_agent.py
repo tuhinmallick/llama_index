@@ -148,9 +148,7 @@ class BaseOpenAIAgent(BaseAgent):
     ) -> bool:
         if n_function_calls > self._max_function_calls:
             return False
-        if not function_call:
-            return False
-        return True
+        return bool(function_call)
 
     def init_chat(
         self, message: str, chat_history: Optional[List[ChatMessage]] = None
@@ -443,7 +441,7 @@ class OpenAIAgent(BaseOpenAIAgent):
             max_function_calls=max_function_calls,
             callback_manager=callback_manager,
         )
-        if len(tools) > 0 and tool_retriever is not None:
+        if tools and tool_retriever is not None:
             raise ValueError("Cannot specify both tools and tool_retriever")
         elif len(tools) > 0:
             self._get_tools = lambda _: tools

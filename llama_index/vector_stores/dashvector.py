@@ -110,11 +110,10 @@ class DashVectorStore(VectorStore):
 
         """
         filter = f"{DEFAULT_DOC_ID_KEY}='{ref_doc_id}'"
-        resp = self._collection.query(filter=filter)
-        if not resp:
+        if resp := self._collection.query(filter=filter):
+            self._collection.delete(ids=[doc.id for doc in resp])
+        else:
             raise Exception(f"Failed to query doc by {filter}")
-
-        self._collection.delete(ids=[doc.id for doc in resp])
 
     def query(
         self,

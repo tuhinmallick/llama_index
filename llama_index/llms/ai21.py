@@ -66,7 +66,7 @@ class AI21(CustomLLM):
         )
 
     @classmethod
-    def class_name(self) -> str:
+    def class_name(cls) -> str:
         """Get Class Name."""
         return "AI21_LLM"
 

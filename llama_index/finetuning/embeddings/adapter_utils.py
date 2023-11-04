@@ -103,7 +103,6 @@ def train_model(
         Path(checkpoint_path).mkdir(parents=True, exist_ok=True)
 
     for epoch in trange(epochs, desc="Epoch", disable=not show_progress_bar):
-        training_steps = 0
         loss_model.zero_grad()
         loss_model.train()
         for _ in trange(
@@ -135,7 +134,6 @@ def train_model(
 
             scheduler_obj.step()
 
-            training_steps += 1
             global_step += 1
 
             # TODO: skip eval for now

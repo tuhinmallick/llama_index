@@ -149,11 +149,11 @@ class SimpleVectorStore(VectorStore):
             ref_doc_id (str): The doc_id of the document to delete.
 
         """
-        text_ids_to_delete = set()
-        for text_id, ref_doc_id_ in self._data.text_id_to_ref_doc_id.items():
-            if ref_doc_id == ref_doc_id_:
-                text_ids_to_delete.add(text_id)
-
+        text_ids_to_delete = {
+            text_id
+            for text_id, ref_doc_id_ in self._data.text_id_to_ref_doc_id.items()
+            if ref_doc_id == ref_doc_id_
+        }
         for text_id in text_ids_to_delete:
             del self._data.embedding_dict[text_id]
             del self._data.text_id_to_ref_doc_id[text_id]

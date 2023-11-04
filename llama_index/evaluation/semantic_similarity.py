@@ -34,13 +34,13 @@ class SemanticSimilarityEvaluator(BaseEvaluator):
         if similarity_fn is None:
             similarity_mode = similarity_mode or SimilarityMode.DEFAULT
             self._similarity_fn = lambda x, y: similarity(x, y, mode=similarity_mode)
-        else:
-            if similarity_mode is not None:
-                raise ValueError(
-                    "Cannot specify both similarity_fn and similarity_mode"
-                )
+        elif similarity_mode is None:
             self._similarity_fn = similarity_fn
 
+        else:
+            raise ValueError(
+                "Cannot specify both similarity_fn and similarity_mode"
+            )
         self._similarity_threshold = similarity_threshold
 
     def _get_prompts(self) -> PromptDictType:

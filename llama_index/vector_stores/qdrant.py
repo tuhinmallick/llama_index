@@ -129,7 +129,7 @@ class QdrantVectorStore(BasePydanticVectorStore):
         """
         from qdrant_client.http import models as rest
 
-        if len(nodes) > 0 and not self._collection_initialized:
+        if nodes and not self._collection_initialized:
             self._create_collection(
                 collection_name=self.collection_name,
                 vector_size=len(nodes[0].get_embedding()),
@@ -182,7 +182,7 @@ class QdrantVectorStore(BasePydanticVectorStore):
 
         from qdrant_client import grpc
 
-        if len(nodes) > 0 and not self._collection_initialized:
+        if nodes and not self._collection_initialized:
             await self._async_create_collection(
                 collection_name=self.collection_name,
                 vector_size=len(nodes[0].get_embedding()),
@@ -227,12 +227,10 @@ class QdrantVectorStore(BasePydanticVectorStore):
             metadata (dict): Metadata of a node.
 
         """
-        grpc_payload = {}
-
-        for key, value in metadata.items():
-            grpc_payload[key] = self._value_to_grpc_value(value)
-
-        return grpc_payload
+        return {
+            key: self._value_to_grpc_value(value)
+            for key, value in metadata.items()
+        }
 
     def _value_to_grpc_value(self, value: Any) -> Optional[Any]:
         """Convert the REST value to gRPC value.

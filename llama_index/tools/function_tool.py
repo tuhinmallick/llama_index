@@ -32,10 +32,7 @@ class FunctionTool(AsyncBaseTool):
         async_fn: Optional[AsyncCallable] = None,
     ) -> None:
         self._fn = fn
-        if async_fn is not None:
-            self._async_fn = async_fn
-        else:
-            self._async_fn = sync_to_async(self._fn)
+        self._async_fn = async_fn if async_fn is not None else sync_to_async(self._fn)
         self._metadata = metadata
 
     @classmethod

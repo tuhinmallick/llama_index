@@ -170,16 +170,13 @@ class DFEvaporateProgram(BaseEvaporateProgram[DataFrameRowsOnly]):
         else:
             raise ValueError("Must provide either `nodes` or `texts`.")
 
-        col_dict = {}
-        for field in self._fields:
-            col_dict[field] = self._inference(nodes, self._field_fns[field], field)
-
+        col_dict = {
+            field: self._inference(nodes, self._field_fns[field], field)
+            for field in self._fields
+        }
         df = pd.DataFrame(col_dict, columns=self._fields)
 
-        # convert pd.DataFrame to DataFrameRowsOnly
-        df_row_objs = []
-        for row_arr in df.values:
-            df_row_objs.append(DataFrameRow(row_values=list(row_arr)))
+        df_row_objs = [DataFrameRow(row_values=list(row_arr)) for row_arr in df.values]
         return DataFrameRowsOnly(rows=df_row_objs)
 
 
@@ -265,13 +262,11 @@ class MultiValueEvaporateProgram(BaseEvaporateProgram[DataFrameValuesPerColumn])
         else:
             raise ValueError("Must provide either `nodes` or `texts`.")
 
-        col_dict = {}
-        for field in self._fields:
-            col_dict[field] = self._inference(nodes, self._field_fns[field], field)
-
-        # convert col_dict to list of DataFrameRow objects
-        df_row_objs = []
-        for field in self._fields:
-            df_row_objs.append(DataFrameRow(row_values=col_dict[field]))
-
+        col_dict = {
+            field: self._inference(nodes, self._field_fns[field], field)
+            for field in self._fields
+        }
+        df_row_objs = [
+            DataFrameRow(row_values=col_dict[field]) for field in self._fields
+        ]
         return DataFrameValuesPerColumn(columns=df_row_objs)

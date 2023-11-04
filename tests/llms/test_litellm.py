@@ -55,8 +55,7 @@ def mock_chat_completion(*args: Any, **kwargs: Any) -> dict:
 
 
 def mock_completion_stream(*args: Any, **kwargs: Any) -> Generator[dict, None, None]:
-    # Example taken from https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb
-    responses = [
+    yield from [
         {
             "choices": [
                 {
@@ -72,7 +71,6 @@ def mock_completion_stream(*args: Any, **kwargs: Any) -> Generator[dict, None, N
             ],
         },
     ]
-    yield from responses
 
 
 async def mock_async_completion_stream(
@@ -88,11 +86,14 @@ async def mock_async_completion_stream(
 def mock_chat_completion_stream(
     *args: Any, **kwargs: Any
 ) -> Generator[dict, None, None]:
-    # Example taken from: https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb
-    responses = [
+    yield from [
         {
             "choices": [
-                {"delta": {"role": "assistant"}, "finish_reason": None, "index": 0}
+                {
+                    "delta": {"role": "assistant"},
+                    "finish_reason": None,
+                    "index": 0,
+                }
             ],
             "created": 1677825464,
             "id": "chatcmpl-6ptKyqKOGXZT6iQnqiXAH8adNLUzD",
@@ -101,7 +102,11 @@ def mock_chat_completion_stream(
         },
         {
             "choices": [
-                {"delta": {"content": "\n\n"}, "finish_reason": None, "index": 0}
+                {
+                    "delta": {"content": "\n\n"},
+                    "finish_reason": None,
+                    "index": 0,
+                }
             ],
             "created": 1677825464,
             "id": "chatcmpl-6ptKyqKOGXZT6iQnqiXAH8adNLUzD",
@@ -109,7 +114,9 @@ def mock_chat_completion_stream(
             "object": "chat.completion.chunk",
         },
         {
-            "choices": [{"delta": {"content": "2"}, "finish_reason": None, "index": 0}],
+            "choices": [
+                {"delta": {"content": "2"}, "finish_reason": None, "index": 0}
+            ],
             "created": 1677825464,
             "id": "chatcmpl-6ptKyqKOGXZT6iQnqiXAH8adNLUzD",
             "model": "gpt-3.5-turbo-0301",
@@ -123,7 +130,6 @@ def mock_chat_completion_stream(
             "object": "chat.completion.chunk",
         },
     ]
-    yield from responses
 
 
 @pytest.mark.skipif(litellm is None, reason="litellm not installed")

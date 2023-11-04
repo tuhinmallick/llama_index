@@ -60,7 +60,7 @@ class RetrieverTool(AsyncBaseTool):
             query_str += (
                 ", ".join([f"{k!s} is {v!s}" for k, v in kwargs.items()]) + "\n"
             )
-        if query_str == "":
+        if not query_str:
             raise ValueError("Cannot call query engine without inputs")
 
         docs = self._retriever.retrieve(query_str)
@@ -85,7 +85,7 @@ class RetrieverTool(AsyncBaseTool):
             query_str += (
                 ", ".join([f"{k!s} is {v!s}" for k, v in kwargs.items()]) + "\n"
             )
-        if query_str == "":
+        if not query_str:
             raise ValueError("Cannot call query engine without inputs")
         docs = await self._retriever.aretrieve(query_str)
         content = ""

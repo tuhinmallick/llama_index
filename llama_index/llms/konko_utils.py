@@ -35,7 +35,7 @@ OPEN_AI_MODELS = {
     "gpt-3.5-turbo-16k-0613": 16385,
 }
 
-ALL_AVAILABLE_MODELS = {**LLAMA_MODELS, **OPEN_AI_MODELS}
+ALL_AVAILABLE_MODELS = LLAMA_MODELS | OPEN_AI_MODELS
 
 DISCONTINUED_MODELS: Dict[str, int] = {}
 
@@ -126,10 +126,7 @@ def is_function_calling_model(model: str) -> bool:
 def get_completion_endpoint(is_chat_model: bool) -> CompletionClientType:
     import konko
 
-    if is_chat_model:
-        return konko.ChatCompletion
-    else:
-        return konko.Completion
+    return konko.ChatCompletion if is_chat_model else konko.Completion
 
 
 def to_openai_message_dict(message: ChatMessage) -> dict:

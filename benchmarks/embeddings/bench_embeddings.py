@@ -53,8 +53,8 @@ def create_local_embedding(
     model = resolve_embed_model(f"local:{model_name}")
     return (
         model,
-        "hf/" + model_name,
-        model._langchain_embedding.client.max_seq_length,  # type: ignore
+        f"hf/{model_name}",
+        model._langchain_embedding.client.max_seq_length,
     )
 
 
@@ -85,10 +85,7 @@ def bench_simple_vector_store(
             strings = generated_strings[:string_count]
 
             for batch_size in embed_batch_sizes:
-                models = []
-                for create_model in embed_models:
-                    models.append(create_model(batch_size=batch_size))  # type: ignore
-
+                models = [create_model(batch_size=batch_size) for create_model in embed_models]
                 for model in models:
                     time1 = time.time()
                     _ = model[0].get_text_embedding_batch(strings, show_progress=True)
@@ -101,7 +98,7 @@ def bench_simple_vector_store(
                         f"{time2 - time1} seconds."
                     )
                     results.append((model[1], batch_size, string_length, time2 - time1))
-                # TODO: async version
+                            # TODO: async version
 
     # print final results
     print("\n\nFinal Results\n---------------------------")

@@ -88,7 +88,7 @@ class AutoMergingRetriever(BaseRetriever):
                 # can try averaging score across embeddings for now
 
                 avg_score = sum(
-                    [n.get_score() or 0.0 for n in parent_cur_children]
+                    n.get_score() or 0.0 for n in parent_cur_children
                 ) / len(parent_cur_children)
                 parent_node_with_score = NodeWithScore(
                     node=parent_node, score=avg_score

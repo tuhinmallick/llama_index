@@ -26,7 +26,9 @@ REPRESENTATION_MODELS = {
     "embed-multilingual-v2.0": 256,
 }
 
-ALL_AVAILABLE_MODELS = {**COMMAND_MODELS, **GENERATION_MODELS, **REPRESENTATION_MODELS}
+ALL_AVAILABLE_MODELS = (
+    COMMAND_MODELS | GENERATION_MODELS | REPRESENTATION_MODELS
+)
 CHAT_MODELS = {**COMMAND_MODELS}
 
 logger = logging.getLogger(__name__)
@@ -62,10 +64,7 @@ def completion_with_retry(
 
     @retry_decorator
     def _completion_with_retry(**kwargs: Any) -> Any:
-        if chat:
-            return client.chat(**kwargs)
-        else:
-            return client.generate(**kwargs)
+        return client.chat(**kwargs) if chat else client.generate(**kwargs)
 
     return _completion_with_retry(**kwargs)
 

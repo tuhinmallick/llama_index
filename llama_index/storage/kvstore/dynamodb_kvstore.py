@@ -174,7 +174,4 @@ class DynamoDBKVStore(BaseKVStore):
             ReturnValues="ALL_OLD",
         )
 
-        if (item := resp.get("Attributes")) is None:
-            return False
-        else:
-            return len(item) > 0
+        return False if (item := resp.get("Attributes")) is None else len(item) > 0

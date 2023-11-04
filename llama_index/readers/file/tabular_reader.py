@@ -43,8 +43,7 @@ class CSVReader(BaseReader):
         text_list = []
         with open(file) as fp:
             csv_reader = csv.reader(fp)
-            for row in csv_reader:
-                text_list.append(", ".join(row))
+            text_list.extend(", ".join(row) for row in csv_reader)
         if self._concat_rows:
             return [Document(text="\n".join(text_list), metadata=extra_info)]
         else:

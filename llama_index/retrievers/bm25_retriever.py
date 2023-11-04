@@ -65,10 +65,10 @@ class BM25Retriever(BaseRetriever):
         tokenized_query = self._tokenizer(query)
         doc_scores = self.bm25.get_scores(tokenized_query)
 
-        nodes: List[NodeWithScore] = []
-        for i, node in enumerate(self._nodes):
-            nodes.append(NodeWithScore(node=node, score=doc_scores[i]))
-
+        nodes: List[NodeWithScore] = [
+            NodeWithScore(node=node, score=doc_scores[i])
+            for i, node in enumerate(self._nodes)
+        ]
         return nodes
 
     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:

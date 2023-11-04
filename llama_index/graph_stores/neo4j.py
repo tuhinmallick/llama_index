@@ -176,15 +176,14 @@ class Neo4jGraphStore(GraphStore):
         def delete_entity(entity: str) -> None:
             with self._driver.session(database=self._database) as session:
                 session.run(
-                    "MATCH (n:%s) WHERE n.id = $entity DELETE n" % self.node_label,
+                    f"MATCH (n:{self.node_label}) WHERE n.id = $entity DELETE n",
                     {"entity": entity},
                 )
 
         def check_edges(entity: str) -> bool:
             with self._driver.session(database=self._database) as session:
                 is_exists_result = session.run(
-                    "MATCH (n1:%s)--() WHERE n1.id = $entity RETURN count(*)"
-                    % (self.node_label),
+                    f"MATCH (n1:{self.node_label})--() WHERE n1.id = $entity RETURN count(*)",
                     {"entity": entity},
                 )
                 return bool(list(is_exists_result))

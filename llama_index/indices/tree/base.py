@@ -162,11 +162,8 @@ class TreeIndex(BaseIndex[IndexGraph]):
             if not ref_node:
                 continue
 
-            ref_doc_info = self.docstore.get_ref_doc_info(ref_node.node_id)
-            if not ref_doc_info:
-                continue
-
-            all_ref_doc_info[ref_node.node_id] = ref_doc_info
+            if ref_doc_info := self.docstore.get_ref_doc_info(ref_node.node_id):
+                all_ref_doc_info[ref_node.node_id] = ref_doc_info
         return all_ref_doc_info
 
 

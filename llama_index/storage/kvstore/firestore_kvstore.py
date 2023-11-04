@@ -86,10 +86,7 @@ class FirestoreKVStore(BaseKVStore):
         """
         collection_id = self.firestore_collection(collection)
         result = self._db.collection(collection_id).document(key).get().to_dict()
-        if not result:
-            return None
-
-        return self.replace_field_name_get(result)
+        return None if not result else self.replace_field_name_get(result)
 
     def get_all(self, collection: str = DEFAULT_COLLECTION) -> Dict[str, dict]:
         """Get all values from the Firestore collection.

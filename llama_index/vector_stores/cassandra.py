@@ -251,7 +251,6 @@ class CassandraVectorStore(VectorStore):
             )
             top_k_scores = [match["distance"] for match in matches]
         elif query.mode == VectorStoreQueryMode.MMR:
-            # Querying a larger number of vectors and then doing MMR on them.
             if (
                 kwargs.get("mmr_prefetch_factor") is not None
                 and kwargs.get("mmr_prefetch_k") is not None
@@ -260,14 +259,13 @@ class CassandraVectorStore(VectorStore):
                     "'mmr_prefetch_factor' and 'mmr_prefetch_k' "
                     "cannot coexist in a call to query()"
                 )
+            if kwargs.get("mmr_prefetch_k") is not None:
+                prefetch_k0 = int(kwargs["mmr_prefetch_k"])
             else:
-                if kwargs.get("mmr_prefetch_k") is not None:
-                    prefetch_k0 = int(kwargs["mmr_prefetch_k"])
-                else:
-                    prefetch_k0 = int(
-                        query.similarity_top_k
-                        * kwargs.get("mmr_prefetch_factor", DEFAULT_MMR_PREFETCH_FACTOR)
-                    )
+                prefetch_k0 = int(
+                    query.similarity_top_k
+                    * kwargs.get("mmr_prefetch_factor", DEFAULT_MMR_PREFETCH_FACTOR)
+                )
             prefetch_k = max(prefetch_k0, query.similarity_top_k)
             #
             prefetch_matches = list(

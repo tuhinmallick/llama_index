@@ -38,7 +38,6 @@ class StreamingGeneratorCallbackHandler(BaseCallbackHandler):
     def get_response_gen(self) -> Generator:
         while True:
             if not self._token_queue.empty():
-                token = self._token_queue.get_nowait()
-                yield token
+                yield self._token_queue.get_nowait()
             elif self._done.is_set():
                 break

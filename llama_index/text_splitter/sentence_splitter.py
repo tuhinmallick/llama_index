@@ -146,7 +146,7 @@ class SentenceSplitter(MetadataAwareTextSplitter):
 
         Has a preference for complete sentences, phrases, and minimal overlap.
         """
-        if text == "":
+        if not text:
             return []
 
         with self.callback_manager.event(
@@ -208,7 +208,7 @@ class SentenceSplitter(MetadataAwareTextSplitter):
             # in theory the correct thing to do would be to remove some/all of the
             # overlap. However, it would complicate the logic further without
             # much real world benefit, so it's not implemented now.
-            if len(last_chunk) > 0:
+            if last_chunk:
                 last_index = len(last_chunk) - 1
                 while (
                     last_index >= 0
@@ -219,7 +219,7 @@ class SentenceSplitter(MetadataAwareTextSplitter):
                     cur_chunk.insert(0, (text, length))
                     last_index -= 1
 
-        while len(splits) > 0:
+        while splits:
             cur_split = splits[0]
             cur_split_len = len(self.tokenizer(cur_split.text))
             if cur_split_len > chunk_size:
@@ -270,8 +270,6 @@ class SentenceSplitter(MetadataAwareTextSplitter):
             splits = split_fn(text)
             if len(splits) > 1:
                 return splits, True
-                break
-
         for split_fn in self._sub_sentence_split_fns:
             splits = split_fn(text)
             if len(splits) > 1:

@@ -62,11 +62,6 @@ def _get_elasticsearch_client(
             "Both es_url and cloud_id are defined. Please provide only one."
         )
 
-    if es_url and cloud_id:
-        raise ValueError(
-            "Both es_url and cloud_id are defined. Please provide only one."
-        )
-
     connection_params: Dict[str, Any] = {}
 
     if es_url:
@@ -113,17 +108,16 @@ def _to_elasticsearch_filter(standard_filters: MetadataFilters) -> Dict[str, Any
             }
         }
     else:
-        operands = []
-        for filter in standard_filters.filters:
-            operands.append(
-                {
-                    "term": {
-                        f"metadata.{filter.key}.keyword": {
-                            "value": filter.value,
-                        }
+        operands = [
+            {
+                "term": {
+                    f"metadata.{filter.key}.keyword": {
+                        "value": filter.value,
                     }
                 }
-            )
+            }
+            for filter in standard_filters.filters
+        ]
         return {"bool": {"must": operands}}
 
 
@@ -321,7 +315,7 @@ class ElasticsearchStore(VectorStore):
                 "Please install it with `pip install 'elasticsearch[async]'`."
             )
 
-        if len(nodes) == 0:
+        if not nodes:
             return []
 
         if create_index_if_not_exists:

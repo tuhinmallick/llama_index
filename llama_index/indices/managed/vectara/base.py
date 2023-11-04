@@ -150,11 +150,11 @@ class VectaraIndex(BaseManagedIndex):
         return True
 
     def _index_doc(self, doc: dict) -> str:
-        request: Dict[str, Any] = {}
-        request["customer_id"] = self._vectara_customer_id
-        request["corpus_id"] = self._vectara_corpus_id
-        request["document"] = doc
-
+        request: Dict[str, Any] = {
+            "customer_id": self._vectara_customer_id,
+            "corpus_id": self._vectara_corpus_id,
+            "document": doc,
+        }
         response = self._session.post(
             headers=self._get_post_headers(),
             url="https://api.vectara.io/v1/index",

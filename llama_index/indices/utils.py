@@ -24,10 +24,7 @@ def extract_numbers_given_response(response: str, n: int = 1) -> Optional[List[i
 
     """
     numbers = re.findall(r"\d+", response)
-    if len(numbers) == 0:
-        return None
-    else:
-        return numbers[:n]
+    return None if len(numbers) == 0 else numbers[:n]
 
 
 def expand_tokens_with_subtokens(tokens: Set[str]) -> Set[str]:
@@ -93,14 +90,14 @@ def default_parse_choice_select_answer_fn(
     for answer_line in answer_lines:
         line_tokens = answer_line.split(",")
         if len(line_tokens) != 2:
-            if not raise_error:
-                continue
-            else:
+            if raise_error:
                 raise ValueError(
                     f"Invalid answer line: {answer_line}. "
                     "Answer line must be of the form: "
                     "answer_num: <int>, answer_relevance: <float>"
                 )
+            else:
+                continue
         answer_num = int(line_tokens[0].split(":")[1].strip())
         if answer_num > num_choices:
             continue

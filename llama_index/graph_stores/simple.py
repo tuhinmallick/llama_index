@@ -34,15 +34,16 @@ class SimpleGraphStoreData(DataClassJsonMixin):
         """Get subjects' rel map in max depth."""
         if subjs is None:
             subjs = list(self.graph_dict.keys())
-        rel_map = {}
-        for subj in subjs:
-            rel_map[subj] = self._get_rel_map(subj, depth=depth, limit=limit)
+        rel_map = {
+            subj: self._get_rel_map(subj, depth=depth, limit=limit)
+            for subj in subjs
+        }
         # TBD, truncate the rel_map in a spread way, now just truncate based
         # on iteration order
         rel_count = 0
         return_map = {}
-        for subj in rel_map:
-            if rel_count + len(rel_map[subj]) > limit:
+        for subj, value in rel_map.items():
+            if rel_count + len(value) > limit:
                 return_map[subj] = rel_map[subj][: limit - rel_count]
                 break
             else:
@@ -57,8 +58,8 @@ class SimpleGraphStoreData(DataClassJsonMixin):
         if depth == 0:
             return []
         rel_map = []
-        rel_count = 0
         if subj in self.graph_dict:
+            rel_count = 0
             for rel, obj in self.graph_dict[subj]:
                 if rel_count >= limit:
                     break

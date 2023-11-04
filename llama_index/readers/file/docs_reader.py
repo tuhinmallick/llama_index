@@ -111,12 +111,12 @@ class HWPReader(BaseReader):
         return [self.HWP_SUMMARY_SECTION] in dirs
 
     def get_body_sections(self, dirs: List[str]) -> List[str]:
-        m = []
-        for d in dirs:
-            if d[0] == self.BODYTEXT_SECTION:
-                m.append(int(d[1][self.SECTION_NAME_LENGTH :]))
-
-        return ["BodyText/Section" + str(x) for x in sorted(m)]
+        m = [
+            int(d[1][self.SECTION_NAME_LENGTH :])
+            for d in dirs
+            if d[0] == self.BODYTEXT_SECTION
+        ]
+        return [f"BodyText/Section{str(x)}" for x in sorted(m)]
 
     def _text_to_document(
         self, text: str, extra_info: Optional[Dict] = None

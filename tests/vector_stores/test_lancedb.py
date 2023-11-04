@@ -35,9 +35,7 @@ def test_to_llama_similarities_from_df_w_distance() -> None:
     data = dict(data_stub)
     distances: List[float] = [np.log(4 / 3), np.log(2), np.log(4)]
 
-    # lance provides '_distance' by natural sort test should as well
-    natural_sort = distances.copy()
-    natural_sort.sort()
+    natural_sort = sorted(distances)
     assert np.array_equal(natural_sort, distances)  # gut check setup
 
     data["_distance"] = distances

@@ -83,8 +83,7 @@ class WatsonX(LLM):
             )
         else:
             raise ValueError(
-                f"Did not find `project_id` or `space_id`, Please pass them as named parameters"
-                f" or as environment variables, `IBM_WATSONX_PROJECT_ID` or `IBM_WATSONX_SPACE_ID`."
+                'Did not find `project_id` or `space_id`, Please pass them as named parameters or as environment variables, `IBM_WATSONX_PROJECT_ID` or `IBM_WATSONX_SPACE_ID`.'
             )
 
         super().__init__(
@@ -97,7 +96,7 @@ class WatsonX(LLM):
         )
 
     @classmethod
-    def class_name(self) -> str:
+    def class_name(cls) -> str:
         """Get Class Name."""
         return "WatsonX_LLM"
 

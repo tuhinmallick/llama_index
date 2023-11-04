@@ -245,11 +245,10 @@ class ZepVectorStore(VectorStore):
 
     def _to_zep_filters(self, filters: MetadataFilters) -> Dict[str, Any]:
         """Convert filters to Zep filters. Filters are ANDed together."""
-        filter_conditions: List[Dict[str, Any]] = []
-
-        for f in filters.filters:
-            filter_conditions.append({"jsonpath": f'$[*] ? (@.{f.key} == "{f.value}")'})
-
+        filter_conditions: List[Dict[str, Any]] = [
+            {"jsonpath": f'$[*] ? (@.{f.key} == "{f.value}")'}
+            for f in filters.filters
+        ]
         return {"where": {"and": filter_conditions}}
 
     def query(

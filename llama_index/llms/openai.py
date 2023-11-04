@@ -173,9 +173,7 @@ class OpenAI(LLM):
         return stream_complete_fn(prompt, **kwargs)
 
     def _use_chat_completions(self, kwargs: Dict[str, Any]) -> bool:
-        if "use_chat_completions" in kwargs:
-            return kwargs["use_chat_completions"]
-        return self.metadata.is_chat_model
+        return kwargs.get("use_chat_completions", self.metadata.is_chat_model)
 
     @property
     def _credential_kwargs(self) -> Dict[str, Any]:
@@ -245,10 +243,7 @@ class OpenAI(LLM):
                     # results. Ignore this message
                     continue
 
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["delta"]
-                else:
-                    delta = {}
+                delta = response["choices"][0]["delta"] if len(response["choices"]) > 0 else {}
                 role = delta.get("role", "assistant")
                 content_delta = delta.get("content", "") or ""
                 content += content_delta
@@ -315,10 +310,7 @@ class OpenAI(LLM):
                 stream=True,
                 **all_kwargs,
             ):
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["text"]
-                else:
-                    delta = ""
+                delta = response["choices"][0]["text"] if len(response["choices"]) > 0 else ""
                 text += delta
                 yield CompletionResponse(
                     delta=delta,
@@ -446,10 +438,7 @@ class OpenAI(LLM):
                 if len(response["choices"]) == 0 and response.get("prompt_annotations"):
                     # open ai sends empty response first while streaming ignore it
                     continue
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["delta"]
-                else:
-                    delta = {}
+                delta = response["choices"][0]["delta"] if len(response["choices"]) > 0 else {}
                 role = delta.get("role", "assistant")
                 content_delta = delta.get("content", "") or ""
                 content += content_delta
@@ -518,10 +507,7 @@ class OpenAI(LLM):
                 stream=True,
                 **all_kwargs,
             ):
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["text"]
-                else:
-                    delta = ""
+                delta = response["choices"][0]["text"] if len(response["choices"]) > 0 else ""
                 text += delta
                 yield CompletionResponse(
                     delta=delta,

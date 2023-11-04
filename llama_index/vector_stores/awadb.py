@@ -130,10 +130,9 @@ class AwaDBVectorStore(VectorStore):
         Returns:
             None
         """
-        if len(ref_doc_id) == 0:
+        if not ref_doc_id:
             return
-        ids: List[str] = []
-        ids.append(ref_doc_id)
+        ids: List[str] = [ref_doc_id]
         self.awadb_client.Delete(ids)
 
     def query(self, query: VectorStoreQuery, **kwargs: Any) -> VectorStoreQueryResult:

@@ -104,7 +104,7 @@ class TokenTextSplitter(MetadataAwareTextSplitter):
 
     def _split_text(self, text: str, chunk_size: int) -> List[str]:
         """Split text into chunks up to chunk_size."""
-        if text == "":
+        if not text:
             return []
 
         with self.callback_manager.event(
@@ -171,9 +171,7 @@ class TokenTextSplitter(MetadataAwareTextSplitter):
             # if we exceed the chunk size after adding the new split, then
             # we need to end the current chunk and start a new one
             if cur_len + split_len > chunk_size:
-                # end the previous chunk
-                chunk = "".join(cur_chunk).strip()
-                if chunk:
+                if chunk := "".join(cur_chunk).strip():
                     chunks.append(chunk)
 
                 # start a new chunk with overlap
@@ -188,9 +186,7 @@ class TokenTextSplitter(MetadataAwareTextSplitter):
             cur_chunk.append(split)
             cur_len += split_len
 
-        # handle the last chunk
-        chunk = "".join(cur_chunk).strip()
-        if chunk:
+        if chunk := "".join(cur_chunk).strip():
             chunks.append(chunk)
 
         return chunks

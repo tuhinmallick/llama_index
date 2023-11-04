@@ -208,10 +208,7 @@ class Vertex(LLM):
             content = ""
             role = MessageRole.ASSISTANT
             for r in response:
-                if "text" in r.__dict__:
-                    content_delta = r.text
-                else:
-                    content_delta = ""
+                content_delta = r.text if "text" in r.__dict__ else ""
                 content += content_delta
                 yield ChatResponse(
                     message=ChatMessage(role=role, content=content),

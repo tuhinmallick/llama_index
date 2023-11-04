@@ -212,10 +212,7 @@ class Konko(LLM):
                     # results. Ignore this message
                     continue
 
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["delta"]
-                else:
-                    delta = {}
+                delta = response["choices"][0]["delta"] if len(response["choices"]) > 0 else {}
                 role_value = delta.get("role")
                 role = role_value if role_value is not None else "assistant"
                 content_delta = delta.get("content", "") or ""
@@ -327,10 +324,7 @@ class Konko(LLM):
                 stream=True,
                 **all_kwargs,
             ):
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["text"]
-                else:
-                    delta = ""
+                delta = response["choices"][0]["text"] if len(response["choices"]) > 0 else ""
                 text += delta
                 yield CompletionResponse(
                     delta=delta,
@@ -451,10 +445,7 @@ class Konko(LLM):
                 stream=True,
                 **all_kwargs,
             ):
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["delta"]
-                else:
-                    delta = {}
+                delta = response["choices"][0]["delta"] if len(response["choices"]) > 0 else {}
                 role = delta.get("role", "assistant")
                 content_delta = delta.get("content", "") or ""
                 content += content_delta
@@ -532,10 +523,7 @@ class Konko(LLM):
                 stream=True,
                 **all_kwargs,
             ):
-                if len(response["choices"]) > 0:
-                    delta = response["choices"][0]["text"]
-                else:
-                    delta = ""
+                delta = response["choices"][0]["text"] if len(response["choices"]) > 0 else ""
                 text += delta
                 yield CompletionResponse(
                     delta=delta,

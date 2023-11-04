@@ -58,10 +58,10 @@ class AwadbReader(BaseReader):
             meta_filter=None,
             not_include_fields=None,
         )
-        documents = []
-        for item_detail in results[0]["ResultItems"]:
-            documents.append(Document(text=item_detail["embedding_text"]))
-
+        documents = [
+            Document(text=item_detail["embedding_text"])
+            for item_detail in results[0]["ResultItems"]
+        ]
         if not separate_documents:
             # join all documents into one
             text_list = [doc.get_content() for doc in documents]

@@ -124,9 +124,7 @@ class GoogleDocsReader(BasePydanticReader):
             element: a ParagraphElement from a Google Doc.
         """
         text_run = element.get("textRun")
-        if not text_run:
-            return ""
-        return text_run.get("content")
+        return "" if not text_run else text_run.get("content")
 
     def _read_structural_elements(self, elements: List[Any]) -> Any:
         """Recurse through a list of Structural Elements.

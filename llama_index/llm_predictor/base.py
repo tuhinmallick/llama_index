@@ -216,13 +216,12 @@ class LLMPredictor(BaseLLMPredictor):
             messages = prompt.format_messages(llm=self._llm, **prompt_args)
             messages = self._extend_messages(messages)
             chat_response = self._llm.stream_chat(messages)
-            stream_tokens = stream_chat_response_to_tokens(chat_response)
+            return stream_chat_response_to_tokens(chat_response)
         else:
             formatted_prompt = prompt.format(llm=self._llm, **prompt_args)
             formatted_prompt = self._extend_prompt(formatted_prompt)
             stream_response = self._llm.stream_complete(formatted_prompt)
-            stream_tokens = stream_completion_response_to_tokens(stream_response)
-        return stream_tokens
+            return stream_completion_response_to_tokens(stream_response)
 
     async def apredict(
         self,
@@ -266,13 +265,12 @@ class LLMPredictor(BaseLLMPredictor):
             messages = prompt.format_messages(llm=self._llm, **prompt_args)
             messages = self._extend_messages(messages)
             chat_response = await self._llm.astream_chat(messages)
-            stream_tokens = await astream_chat_response_to_tokens(chat_response)
+            return await astream_chat_response_to_tokens(chat_response)
         else:
             formatted_prompt = prompt.format(llm=self._llm, **prompt_args)
             formatted_prompt = self._extend_prompt(formatted_prompt)
             stream_response = await self._llm.astream_complete(formatted_prompt)
-            stream_tokens = await astream_completion_response_to_tokens(stream_response)
-        return stream_tokens
+            return await astream_completion_response_to_tokens(stream_response)
 
     def _extend_prompt(
         self,

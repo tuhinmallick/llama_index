@@ -39,15 +39,12 @@ class StructuredLLMPredictor(LLMPredictor):
 
         """
         llm_prediction = super().predict(prompt, **prompt_args)
-        # run output parser
-        if prompt.output_parser is not None:
-            # TODO: return other formats
-            output_parser = prompt.output_parser
-            parsed_llm_prediction = str(output_parser.parse(llm_prediction))
-        else:
-            parsed_llm_prediction = llm_prediction
+        if prompt.output_parser is None:
+            return llm_prediction
 
-        return parsed_llm_prediction
+        # TODO: return other formats
+        output_parser = prompt.output_parser
+        return str(output_parser.parse(llm_prediction))
 
     def stream(
         self,
@@ -87,9 +84,7 @@ class StructuredLLMPredictor(LLMPredictor):
 
         """
         llm_prediction = await super().apredict(prompt, **prompt_args)
-        if prompt.output_parser is not None:
-            output_parser = prompt.output_parser
-            parsed_llm_prediction = str(output_parser.parse(llm_prediction))
-        else:
-            parsed_llm_prediction = llm_prediction
-        return parsed_llm_prediction
+        if prompt.output_parser is None:
+            return llm_prediction
+        output_parser = prompt.output_parser
+        return str(output_parser.parse(llm_prediction))

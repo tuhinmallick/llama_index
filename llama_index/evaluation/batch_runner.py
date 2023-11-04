@@ -103,13 +103,10 @@ class BatchEvalRunner:
         Make sure that None inputs are replaced with [None] * len(inputs).
 
         """
-        assert len(inputs_list) > 0
-        # first, make sure at least one of queries or response_strs is not None
-        input_len: Optional[int] = None
-        for inputs in inputs_list:
-            if inputs is not None:
-                input_len = len(inputs)
-                break
+        assert inputs_list
+        input_len: Optional[int] = next(
+            (len(inputs) for inputs in inputs_list if inputs is not None), None
+        )
         if input_len is None:
             raise ValueError("At least one item in inputs_list must be provided.")
 
@@ -117,10 +114,10 @@ class BatchEvalRunner:
         for inputs in inputs_list:
             if inputs is None:
                 new_inputs_list.append([None] * input_len)
-            else:
-                if len(inputs) != input_len:
-                    raise ValueError("All inputs must have the same length.")
+            elif len(inputs) == input_len:
                 new_inputs_list.append(inputs)
+            else:
+                raise ValueError("All inputs must have the same length.")
         return new_inputs_list
 
     def _get_eval_kwargs(
@@ -159,8 +156,7 @@ class BatchEvalRunner:
         queries, response_strs, contexts_list = self._validate_and_clean_inputs(
             queries, response_strs, contexts_list
         )
-        for k in eval_kwargs_lists:
-            v = eval_kwargs_lists[k]
+        for k, v in eval_kwargs_lists.items():
             if not isinstance(v, list):
                 raise ValueError(
                     f"Each value in eval_kwargs must be a list. Got {k}: {v}"
@@ -173,18 +169,18 @@ class BatchEvalRunner:
             response_str = cast(List, response_strs)[idx]
             contexts = cast(List, contexts_list)[idx]
             eval_kwargs = self._get_eval_kwargs(eval_kwargs_lists, idx)
-            for name, evaluator in self.evaluators.items():
-                eval_jobs.append(
-                    eval_worker(
-                        self.semaphore,
-                        evaluator,
-                        name,
-                        query=query,
-                        response_str=response_str,
-                        contexts=contexts,
-                        eval_kwargs=eval_kwargs,
-                    )
+            eval_jobs.extend(
+                eval_worker(
+                    self.semaphore,
+                    evaluator,
+                    name,
+                    query=query,
+                    response_str=response_str,
+                    contexts=contexts,
+                    eval_kwargs=eval_kwargs,
                 )
+                for name, evaluator in self.evaluators.items()
+            )
         results = await self.asyncio_mod.gather(*eval_jobs)
 
         # Format results
@@ -209,8 +205,7 @@ class BatchEvalRunner:
 
         """
         queries, responses = self._validate_and_clean_inputs(queries, responses)
-        for k in eval_kwargs_lists:
-            v = eval_kwargs_lists[k]
+        for k, v in eval_kwargs_lists.items():
             if not isinstance(v, list):
                 raise ValueError(
                     f"Each value in eval_kwargs must be a list. Got {k}: {v}"
@@ -222,17 +217,17 @@ class BatchEvalRunner:
         for idx, query in enumerate(cast(List[str], queries)):
             response = cast(List, responses)[idx]
             eval_kwargs = self._get_eval_kwargs(eval_kwargs_lists, idx)
-            for name, evaluator in self.evaluators.items():
-                eval_jobs.append(
-                    eval_response_worker(
-                        self.semaphore,
-                        evaluator,
-                        name,
-                        query=query,
-                        response=response,
-                        eval_kwargs=eval_kwargs,
-                    )
+            eval_jobs.extend(
+                eval_response_worker(
+                    self.semaphore,
+                    evaluator,
+                    name,
+                    query=query,
+                    response=response,
+                    eval_kwargs=eval_kwargs,
                 )
+                for name, evaluator in self.evaluators.items()
+            )
         results = await self.asyncio_mod.gather(*eval_jobs)
 
         # Format results
@@ -256,10 +251,10 @@ class BatchEvalRunner:
         if queries is None:
             raise ValueError("`queries` must be provided")
 
-        # gather responses
-        response_jobs = []
-        for query in queries:
-            response_jobs.append(response_worker(self.semaphore, query_engine, query))
+        response_jobs = [
+            response_worker(self.semaphore, query_engine, query)
+            for query in queries
+        ]
         responses = await self.asyncio_mod.gather(*response_jobs)
 
         return await self.aevaluate_responses(

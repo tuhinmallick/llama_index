@@ -143,20 +143,19 @@ class Refine(BaseSynthesizer):
         return response
 
     def _default_program_factory(self, prompt: PromptTemplate) -> BasePydanticProgram:
-        if self._structured_answer_filtering:
-            from llama_index.program.utils import get_program_for_llm
-
-            return get_program_for_llm(
-                StructuredRefineResponse,
-                prompt,
-                self._service_context.llm,
-                verbose=self._verbose,
-            )
-        else:
+        if not self._structured_answer_filtering:
             return DefaultRefineProgram(
                 prompt=prompt,
                 llm_predictor=self._service_context.llm_predictor,
             )
+        from llama_index.program.utils import get_program_for_llm
+
+        return get_program_for_llm(
+            StructuredRefineResponse,
+            prompt,
+            self._service_context.llm,
+            verbose=self._verbose,
+        )
 
     def _give_response_single(
         self,
@@ -192,7 +191,7 @@ class Refine(BaseSynthesizer):
                     logger.warning(
                         f"Validation error on structured response: {e}", exc_info=True
                     )
-            elif response is None and self._streaming:
+            elif response is None:
                 response = self._service_context.llm_predictor.stream(
                     text_qa_template,
                     context_str=cur_text_chunk,
@@ -367,26 +366,25 @@ class Refine(BaseSynthesizer):
         program = self._program_factory(refine_template)
         for cur_text_chunk in text_chunks:
             query_satisfied = False
-            if not self._streaming:
-                try:
-                    structured_response = await program.acall(
-                        context_msg=cur_text_chunk,
-                        output_cls=self._output_cls,
-                        **response_kwargs,
-                    )
-                    structured_response = cast(
-                        StructuredRefineResponse, structured_response
-                    )
-                    query_satisfied = structured_response.query_satisfied
-                    if query_satisfied:
-                        response = structured_response.answer
-                except ValidationError as e:
-                    logger.warning(
-                        f"Validation error on structured response: {e}", exc_info=True
-                    )
-            else:
+            if self._streaming:
                 raise ValueError("Streaming not supported for async")
 
+            try:
+                structured_response = await program.acall(
+                    context_msg=cur_text_chunk,
+                    output_cls=self._output_cls,
+                    **response_kwargs,
+                )
+                structured_response = cast(
+                    StructuredRefineResponse, structured_response
+                )
+                query_satisfied = structured_response.query_satisfied
+                if query_satisfied:
+                    response = structured_response.answer
+            except ValidationError as e:
+                logger.warning(
+                    f"Validation error on structured response: {e}", exc_info=True
+                )
             if query_satisfied:
                 refine_template = self._refine_template.partial_format(
                     query_str=query_str, existing_answer=response
@@ -427,7 +425,7 @@ class Refine(BaseSynthesizer):
                     logger.warning(
                         f"Validation error on structured response: {e}", exc_info=True
                     )
-            elif response is None and self._streaming:
+            elif response is None:
                 raise ValueError("Streaming not supported for async")
             else:
                 response = await self._arefine_response_single(

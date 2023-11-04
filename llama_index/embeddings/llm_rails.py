@@ -21,7 +21,7 @@ class LLMRailsEmbedding(BaseEmbedding):
     api_key: str
 
     @classmethod
-    def class_name(self) -> str:
+    def class_name(cls) -> str:
         return "LLMRailsEmbedding"
 
     def __init__(

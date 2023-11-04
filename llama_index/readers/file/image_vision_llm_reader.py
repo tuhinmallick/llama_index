@@ -63,11 +63,7 @@ class ImageVisionLLMReader(BaseReader):
         if image.mode != "RGB":
             image = image.convert("RGB")
 
-        # Encode image into base64 string and keep in document
-        image_str: Optional[str] = None
-        if self._keep_image:
-            image_str = img_2_b64(image)
-
+        image_str = img_2_b64(image) if self._keep_image else None
         # Parse image into text
         model = self._parser_config["model"]
         processor = self._parser_config["processor"]

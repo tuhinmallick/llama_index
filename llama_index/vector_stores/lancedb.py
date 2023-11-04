@@ -133,7 +133,7 @@ class LanceDBVectorStore(VectorStore):
 
         """
         table = self.connection.open_table(self.table_name)
-        table.delete('document_id = "' + ref_doc_id + '"')
+        table.delete(f'document_id = "{ref_doc_id}"')
 
     def query(
         self,
@@ -141,17 +141,17 @@ class LanceDBVectorStore(VectorStore):
         **kwargs: Any,
     ) -> VectorStoreQueryResult:
         """Query index for top k most similar nodes."""
-        if query.filters is not None:
-            if "where" in kwargs:
-                raise ValueError(
-                    "Cannot specify filter via both query and kwargs. "
-                    "Use kwargs only for lancedb specific items that are "
-                    "not supported via the generic query interface."
-                )
-            where = _to_lance_filter(query.filters)
-        else:
+        if query.filters is None:
             where = kwargs.pop("where", None)
 
+        elif "where" in kwargs:
+            raise ValueError(
+                "Cannot specify filter via both query and kwargs. "
+                "Use kwargs only for lancedb specific items that are "
+                "not supported via the generic query interface."
+            )
+        else:
+            where = _to_lance_filter(query.filters)
         table = self.connection.open_table(self.table_name)
         lance_query = (
             table.search(query.query_embedding)

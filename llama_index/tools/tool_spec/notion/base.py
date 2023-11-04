@@ -84,17 +84,17 @@ class NotionToolSpec(BaseToolSpec):
         }
         if direction is not None or timestamp is not None:
             payload["sort"] = {}
-            if direction is not None:
-                payload["sort"]["direction"] = direction
-            if timestamp is not None:
-                payload["sort"]["timestamp"] = timestamp
+        if direction is not None:
+            payload["sort"]["direction"] = direction
+        if timestamp is not None:
+            payload["sort"]["timestamp"] = timestamp
 
         if value is not None or property is not None:
             payload["filter"] = {}
-            if value is not None:
-                payload["filter"]["value"] = value
-            if property is not None:
-                payload["filter"]["property"] = property
+        if value is not None:
+            payload["filter"]["value"] = value
+        if property is not None:
+            payload["filter"]["property"] = property
 
         response = requests.post(SEARCH_URL, json=payload, headers=self.reader.headers)
         response_json = response.json()

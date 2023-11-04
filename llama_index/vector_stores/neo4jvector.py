@@ -251,17 +251,13 @@ class Neo4jVectorStore(VectorStore):
 
         retrieval_query = self.retrieval_query or default_retrieval
 
-        read_query = (
-            "CALL db.index.vector.queryNodes($index, $k, $embedding) "
-            "YIELD node, score "
-        ) + retrieval_query
-
         parameters = {
             "index": self.index_name,
             "k": query.similarity_top_k,
             "embedding": query.query_embedding,
         }
 
+        read_query = f"CALL db.index.vector.queryNodes($index, $k, $embedding) YIELD node, score {retrieval_query}"
         results = self.database_query(read_query, params=parameters)
 
         nodes = []

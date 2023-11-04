@@ -26,10 +26,10 @@ def create_indexes(spider_dir: str, llm: OpenAI) -> Dict[str, SQLStructStoreInde
     # Create all necessary SQL database objects.
     databases = {}
     for db_name in os.listdir(os.path.join(spider_dir, "database")):
-        db_path = os.path.join(spider_dir, "database", db_name, db_name + ".sqlite")
+        db_path = os.path.join(spider_dir, "database", db_name, f"{db_name}.sqlite")
         if not os.path.exists(db_path):
             continue
-        engine = create_engine("sqlite:///" + db_path)
+        engine = create_engine(f"sqlite:///{db_path}")
         databases[db_name] = SQLDatabase(engine=engine)
         # Test connection.
         with engine.connect() as connection:
@@ -38,10 +38,10 @@ def create_indexes(spider_dir: str, llm: OpenAI) -> Dict[str, SQLStructStoreInde
             ).fetchone()
 
     llm_predictor = LLMPredictor(llm=llm)
-    llm_indexes = {}
-    for db_name, db in databases.items():
-        llm_indexes[db_name] = SQLStructStoreIndex(
+    return {
+        db_name: SQLStructStoreIndex(
             llm_predictor=llm_predictor,
             sql_database=db,
         )
-    return llm_indexes
+        for db_name, db in databases.items()
+    }

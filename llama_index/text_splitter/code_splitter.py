@@ -83,8 +83,8 @@ class CodeSplitter(TextSplitter):
     def split_text(self, text: str) -> List[str]:
         """Split incoming code and return chunks using the AST."""
         with self.callback_manager.event(
-            CBEventType.CHUNKING, payload={EventPayload.CHUNKS: [text]}
-        ) as event:
+                CBEventType.CHUNKING, payload={EventPayload.CHUNKS: [text]}
+            ) as event:
             try:
                 import tree_sitter_languages
             except ImportError:
@@ -105,18 +105,17 @@ class CodeSplitter(TextSplitter):
             tree = parser.parse(bytes(text, "utf-8"))
 
             if (
-                not tree.root_node.children
-                or tree.root_node.children[0].type != "ERROR"
+                tree.root_node.children
+                and tree.root_node.children[0].type == "ERROR"
             ):
-                chunks = [
-                    chunk.strip() for chunk in self._chunk_node(tree.root_node, text)
-                ]
-                event.on_end(
-                    payload={EventPayload.CHUNKS: chunks},
-                )
-
-                return chunks
-            else:
                 raise ValueError(f"Could not parse code with language {self.language}.")
+            chunks = [
+                chunk.strip() for chunk in self._chunk_node(tree.root_node, text)
+            ]
+            event.on_end(
+                payload={EventPayload.CHUNKS: chunks},
+            )
+
+            return chunks
 
         # TODO: set up auto-language detection using something like https://github.com/yoeo/guesslang.

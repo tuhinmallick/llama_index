@@ -20,10 +20,7 @@ def get_retrieval_results_df(
 
     avg_metrics_dict = defaultdict(list)
     for name, eval_results in zip(names, results_arr):
-        metric_dicts = []
-        for eval_result in eval_results:
-            metric_dict = eval_result.metric_vals_dict
-            metric_dicts.append(metric_dict)
+        metric_dicts = [eval_result.metric_vals_dict for eval_result in eval_results]
         results_df = pd.DataFrame(metric_dicts)
 
         for metric_key in metric_keys:

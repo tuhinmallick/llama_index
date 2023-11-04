@@ -114,16 +114,13 @@ class QueryFusionRetriever(BaseRetriever):
     ) -> Dict[Tuple[str, int], List[NodeWithScore]]:
         tasks = []
         for query in queries:
-            for i, retriever in enumerate(self._retrievers):
-                tasks.append(retriever.aretrieve(query))
-
+            tasks.extend(retriever.aretrieve(query) for retriever in self._retrievers)
         task_results = run_async_tasks(tasks)
 
-        results = {}
-        for i, (query, query_result) in enumerate(zip(queries, task_results)):
-            results[(query, i)] = query_result
-
-        return results
+        return {
+            (query, i): query_result
+            for i, (query, query_result) in enumerate(zip(queries, task_results))
+        }
 
     def _run_sync_queries(
         self, queries: List[str]

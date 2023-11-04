@@ -28,7 +28,6 @@ class HotpotQAEvaluator:
     def _download_datasets(self) -> Dict[str, str]:
         cache_dir = get_cache_dir()
 
-        dataset_paths = {}
         dataset = "hotpot_dev_distractor"
         dataset_full_path = os.path.join(cache_dir, "datasets", "HotpotQA")
         if not os.path.exists(dataset_full_path):
@@ -54,7 +53,9 @@ class HotpotQAEvaluator:
                     )
                     rmtree(dataset_full_path)
                 raise ValueError(f"could not download {dataset} dataset") from e
-        dataset_paths[dataset] = os.path.join(dataset_full_path, "dev_distractor.json")
+        dataset_paths = {
+            dataset: os.path.join(dataset_full_path, "dev_distractor.json")
+        }
         print("Dataset:", dataset, "downloaded at:", dataset_full_path)
         return dataset_paths
 
