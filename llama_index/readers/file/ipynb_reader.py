@@ -33,8 +33,8 @@ class IPYNBReader(BaseReader):
         # remove the first element, which is empty
         splits.pop(0)
 
-        if self._concatenate:
-            docs = [Document(text="\n\n".join(splits), metadata=extra_info or {})]
-        else:
-            docs = [Document(text=s, metadata=extra_info or {}) for s in splits]
-        return docs
+        return (
+            [Document(text="\n\n".join(splits), metadata=extra_info or {})]
+            if self._concatenate
+            else [Document(text=s, metadata=extra_info or {}) for s in splits]
+        )

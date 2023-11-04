@@ -130,8 +130,7 @@ class KGTableRetriever(BaseRetriever):
         """Find the keywords for given rel text triplets."""
         keywords = []
         for rel_text in rel_texts:
-            keyword = rel_text.split(",")[0]
-            if keyword:
+            if keyword := rel_text.split(",")[0]:
                 keywords.append(keyword.strip("(\"'"))
         return keywords
 
@@ -140,7 +139,6 @@ class KGTableRetriever(BaseRetriever):
         query_bundle: QueryBundle,
     ) -> List[NodeWithScore]:
         """Get nodes for response."""
-        node_visited = set()
         keywords = self._get_keywords(query_bundle.query_str)
         if self._verbose:
             print_text(f"Extracted keywords: {keywords}\n", color="green")
@@ -148,6 +146,7 @@ class KGTableRetriever(BaseRetriever):
         cur_rel_map = {}
         chunk_indices_count: Dict[str, int] = defaultdict(int)
         if self._retriever_mode != KGRetrieverMode.EMBEDDING:
+            node_visited = set()
             for keyword in keywords:
                 subjs = {keyword}
                 node_ids = self._index_struct.search_node_by_keyword(keyword)
@@ -278,7 +277,7 @@ class KGTableRetriever(BaseRetriever):
         # if no relationship is found, return the nodes found by keywords
         if not rel_texts:
             logger.info("> No relationships found, returning nodes found by keywords.")
-            if len(sorted_nodes_with_scores) == 0:
+            if not sorted_nodes_with_scores:
                 logger.info("> No nodes found by keywords, returning empty response.")
                 return [
                     NodeWithScore(
@@ -508,11 +507,9 @@ class KnowledgeGraphRAGRetriever(BaseRetriever):
                 handle_llm_prompt_template is not None,
             ]
         ), "Must provide either entity extract function or template."
-        enitities_fn: List[str] = []
         enitities_llm: Set[str] = set()
 
-        if handle_fn is not None:
-            enitities_fn = handle_fn(query_str)
+        enitities_fn = handle_fn(query_str) if handle_fn is not None else []
         if handle_llm_prompt_template is not None:
             response = self._service_context.llm_predictor.predict(
                 handle_llm_prompt_template,
@@ -558,11 +555,9 @@ class KnowledgeGraphRAGRetriever(BaseRetriever):
                 handle_llm_prompt_template is not None,
             ]
         ), "Must provide either entity extract function or template."
-        enitities_fn: List[str] = []
         enitities_llm: Set[str] = set()
 
-        if handle_fn is not None:
-            enitities_fn = handle_fn(query_str)
+        enitities_fn = handle_fn(query_str) if handle_fn is not None else []
         if handle_llm_prompt_template is not None:
             response = await self._service_context.llm_predictor.apredict(
                 handle_llm_prompt_template,
@@ -678,7 +673,7 @@ class KnowledgeGraphRAGRetriever(BaseRetriever):
         self, knowledge_sequence: List[str], rel_map: Optional[Dict[Any, Any]] = None
     ) -> List[NodeWithScore]:
         """Build nodes from knowledge sequence."""
-        if len(knowledge_sequence) == 0:
+        if not knowledge_sequence:
             logger.info("> No knowledge sequence extracted from entities.")
             return []
         _new_line_char = "\n"

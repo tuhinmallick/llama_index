@@ -119,7 +119,7 @@ class JSONNodeParser(NodeParser):
                 new_path.append(key)
                 yield from self._depth_first_yield(value, levels_back, new_path)
         elif isinstance(json_data, list):
-            for _, value in enumerate(json_data):
+            for value in json_data:
                 yield from self._depth_first_yield(value, levels_back, path)
         else:
             new_path = path[-levels_back:]

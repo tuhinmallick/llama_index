@@ -47,10 +47,7 @@ class RunGptLLM(LLM):
         additional_kwargs: Optional[Dict[str, Any]] = None,
         callback_manager: Optional[CallbackManager] = None,
     ):
-        if endpoint.startswith("http://"):
-            base_url = endpoint
-        else:
-            base_url = "http://" + endpoint
+        base_url = endpoint if endpoint.startswith("http://") else f"http://{endpoint}"
         super().__init__(
             model=model,
             endpoint=endpoint,
@@ -85,7 +82,7 @@ class RunGptLLM(LLM):
                 "Please install requests with `pip install requests`"
             )
         response_gpt = requests.post(
-            self.base_url + "/generate",
+            f"{self.base_url}/generate",
             json=self._request_pack("complete", prompt, **kwargs),
             stream=False,
         ).json()
@@ -106,7 +103,7 @@ class RunGptLLM(LLM):
                 "Please install requests with `pip install requests`"
             )
         response_gpt = requests.post(
-            self.base_url + "/generate_stream",
+            f"{self.base_url}/generate_stream",
             json=self._request_pack("complete", prompt, **kwargs),
             stream=True,
         )
@@ -147,7 +144,7 @@ class RunGptLLM(LLM):
                 "Please install requests with `pip install requests`"
             )
         response_gpt = requests.post(
-            self.base_url + "/chat",
+            f"{self.base_url}/chat",
             json=self._request_pack("chat", message_list, **kwargs),
             stream=False,
         ).json()
@@ -167,7 +164,7 @@ class RunGptLLM(LLM):
                 "Please install requests with `pip install requests`"
             )
         response_gpt = requests.post(
-            self.base_url + "/chat_stream",
+            f"{self.base_url}/chat_stream",
             json=self._request_pack("chat", message_list, **kwargs),
             stream=True,
         )
@@ -228,12 +225,10 @@ class RunGptLLM(LLM):
         return gen()
 
     def _message_wrapper(self, messages: Sequence[ChatMessage]) -> List[Dict[str, Any]]:
-        message_list = []
-        for message in messages:
-            role = message.role.value
-            content = message.content
-            message_list.append({"role": role, "content": content})
-        return message_list
+        return [
+            {"role": message.role.value, "content": message.content}
+            for message in messages
+        ]
 
     def _message_unpacker(
         self, response_gpt: Dict[str, Any]
@@ -283,6 +278,4 @@ class RunGptLLM(LLM):
         return None
 
     def _space_handler(self, word: str) -> str:
-        if word.isalnum():
-            return " " + word
-        return word
+        return f" {word}" if word.isalnum() else word

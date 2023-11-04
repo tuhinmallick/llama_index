@@ -63,9 +63,9 @@ def parse_json_markdown(text: str) -> Any:
 
 def extract_json_str(text: str) -> str:
     """Extract JSON string from text."""
-    # NOTE: this regex parsing is taken from langchain.output_parsers.pydantic
-    match = re.search(r"\{.*\}", text.strip(), re.MULTILINE | re.IGNORECASE | re.DOTALL)
-    if not match:
+    if match := re.search(
+        r"\{.*\}", text.strip(), re.MULTILINE | re.IGNORECASE | re.DOTALL
+    ):
+        return match.group()
+    else:
         raise ValueError(f"Could not extract json string from output: {text}")
-
-    return match.group()

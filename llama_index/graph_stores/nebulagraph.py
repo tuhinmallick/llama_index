@@ -40,13 +40,7 @@ def hash_string_to_rank(string: str) -> int:
     mask = (1 << 64) - 1
     signed_hash &= mask
 
-    # convert the signed hash value to an unsigned 64-bit integer
-    if signed_hash & (1 << 63):
-        unsigned_hash = -((signed_hash ^ mask) + 1)
-    else:
-        unsigned_hash = signed_hash
-
-    return unsigned_hash
+    return -((signed_hash ^ mask) + 1) if signed_hash & (1 << 63) else signed_hash
 
 
 def prepare_subjs_param(
@@ -63,7 +57,7 @@ def prepare_subjs_param(
     # filter non-digit string for INT64 vid type
     if vid_type == "INT64":
         subjs = [subj for subj in subjs if subj.isdigit()]
-        if len(subjs) == 0:
+        if not subjs:
             logger.warning(
                 f"KG is with INT64 vid type, but no digit string is provided."
                 f"Return empty subjs, and no query will be executed."
@@ -213,8 +207,8 @@ class NebulaGraphStore(GraphStore):
 
         # ensure "NEBULA_USER", "NEBULA_PASSWORD", "NEBULA_ADDRESS" are set
         # in environment variables
-        if not all(
-            key in os.environ
+        if any(
+            key not in os.environ
             for key in ["NEBULA_USER", "NEBULA_PASSWORD", "NEBULA_ADDRESS"]
         ):
             raise ValueError(
@@ -277,7 +271,7 @@ class NebulaGraphStore(GraphStore):
                     f"Error message: {result.error_msg()}"
                 )
             return result
-        except (TTransportException, IOErrorException, RuntimeError) as e:
+        except (TTransportException, IOErrorException, RuntimeError, ValueError) as e:
             logger.error(
                 f"Connection issue, try to recreate session pool. Query: {query}, "
                 f"Param: {param_map}"
@@ -290,13 +284,6 @@ class NebulaGraphStore(GraphStore):
             )
             raise
 
-        except ValueError as e:
-            # query failed on db side
-            logger.error(
-                f"Query failed. Query: {query}, Param: {param_map}"
-                f"Error message: {e}"
-            )
-            raise
         except Exception as e:
             # other exceptions
             logger.error(
@@ -344,9 +331,7 @@ class NebulaGraphStore(GraphStore):
         """
         rel_map = self.get_flat_rel_map([subj], depth=1)
         rels = list(rel_map.values())
-        if len(rels) == 0:
-            return []
-        return rels[0]
+        return [] if not rels else rels[0]
 
     def get_flat_rel_map(
         self, subjs: Optional[List[str]] = None, depth: int = 2, limit: int = 30
@@ -482,7 +467,7 @@ class NebulaGraphStore(GraphStore):
             subjs = [
                 escape_str(subj) for subj in subjs if isinstance(subj, str) and subj
             ]
-            if len(subjs) == 0:
+            if not subjs:
                 return {}
 
         return self.get_flat_rel_map(subjs, depth, limit)

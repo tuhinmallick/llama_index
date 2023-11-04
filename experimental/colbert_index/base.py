@@ -148,9 +148,7 @@ class ColbertIndex(BaseIndex[IndexDict]):
         node_doc_ids = [self._docs_pos_to_node_id[id] for id in doc_ids]
         nodes = self.docstore.get_nodes(node_doc_ids)
 
-        nodes_with_score = []
-
-        for node, score in zip(nodes, scores):
-            nodes_with_score.append(NodeWithScore(node=node, score=score))
-
-        return nodes_with_score
+        return [
+            NodeWithScore(node=node, score=score)
+            for node, score in zip(nodes, scores)
+        ]

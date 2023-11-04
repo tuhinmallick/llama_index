@@ -97,10 +97,8 @@ class FalkorDBGraphStore(GraphStore):
             for i, edge in enumerate(edges):
                 dest = nodes[i + 1]
                 dest_id = dest.properties["id"]
-                path.append(edge.relation)
-                path.append(dest_id)
-
-            paths = rel_map[subj_id] if subj_id in rel_map else []
+                path.extend((edge.relation, dest_id))
+            paths = rel_map.get(subj_id, [])
             paths.append(path)
             rel_map[subj_id] = paths
 

@@ -138,12 +138,10 @@ class SingleStoreVectorStore(VectorStore):
                     node, remove_text=True, flat_metadata=self.flat_metadata
                 )
                 cursor.execute(
-                    "INSERT INTO {} VALUES (%s, JSON_ARRAY_PACK(%s), %s)".format(
-                        self.table_name
-                    ),
+                    f"INSERT INTO {self.table_name} VALUES (%s, JSON_ARRAY_PACK(%s), %s)",
                     (
                         node.get_content(metadata_mode=MetadataMode.NONE) or "",
-                        "[{}]".format(",".join(map(str, embedding))),
+                        f'[{",".join(map(str, embedding))}]',
                         json.dumps(metadata),
                     ),
                 )
@@ -165,7 +163,7 @@ class SingleStoreVectorStore(VectorStore):
         try:
             cursor.execute(
                 f"DELETE FROM {self.table_name} WHERE JSON_EXTRACT_JSON(metadata, 'ref_doc_id') = %s",
-                ('"' + ref_doc_id + '"',),
+                (f'"{ref_doc_id}"',),
             )
         finally:
             cursor.close()

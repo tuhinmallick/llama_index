@@ -9,7 +9,7 @@ def tmp_function(x: int) -> str:
 
 
 async def async_tmp_function(x: int) -> str:
-    return "async_" + str(x)
+    return f"async_{x}"
 
 
 def test_function_tool() -> None:
@@ -42,13 +42,12 @@ def test_function_tool() -> None:
     result = langchain_tool.run("1")
     assert result == "1"
 
-    # test langchain structured tool
     class TestSchema(BaseModel):
         x: int
         y: int
 
     function_tool = FunctionTool.from_defaults(
-        lambda x, y: str(x) + "," + str(y),
+        lambda x, y: f"{x},{y}",
         name="foo",
         description="bar",
         fn_schema=TestSchema,
@@ -78,16 +77,15 @@ async def test_function_tool_async() -> None:
     result = await langchain_tool.arun("1")
     assert result == "async_1"
 
-    # test langchain structured tool
     class TestSchema(BaseModel):
         x: int
         y: int
 
     def structured_tmp_function(x: int, y: int) -> str:
-        return str(x) + "," + str(y)
+        return f"{x},{y}"
 
     async def async_structured_tmp_function(x: int, y: int) -> str:
-        return "async_" + str(x) + "," + str(y)
+        return f"async_{x},{y}"
 
     function_tool = FunctionTool.from_defaults(
         fn=structured_tmp_function,

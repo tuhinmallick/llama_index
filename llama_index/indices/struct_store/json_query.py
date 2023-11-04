@@ -53,8 +53,7 @@ def default_output_processor(llm_output: str, json_value: JSONType) -> JSONType:
 
     for expression in expressions:
         try:
-            datum: List[DatumInContext] = parse(expression).find(json_value)
-            if datum:
+            if datum := parse(expression).find(json_value):
                 key = expression.split(".")[
                     -1
                 ]  # Extracting "title" from "$.title", for example

@@ -51,14 +51,7 @@ class BasePromptTemplate(BaseModel, ABC):
 
         """
         function_mappings = self.function_mappings or {}
-        # first generate the values for the functions
-        new_kwargs = {}
-        for k, v in function_mappings.items():
-            # TODO: figure out what variables to pass into each function
-            # is it the kwargs specified during query time? just the fixed kwargs?
-            # all kwargs?
-            new_kwargs[k] = v(**kwargs)
-
+        new_kwargs = {k: v(**kwargs) for k, v in function_mappings.items()}
         # then, add the fixed variables only if not in new_kwargs already
         # (implying that function mapping will override fixed variables)
         for k, v in kwargs.items():
@@ -334,13 +327,16 @@ class LangchainPromptTemplate(BasePromptTemplate):
         function_mappings: Optional[Dict[str, Callable]] = None,
         requires_langchain_llm: bool = False,
     ) -> None:
-        if selector is None:
-            if template is None:
-                raise ValueError("Must provide either template or selector.")
+        if (
+            selector is None
+            and template is None
+            or selector is not None
+            and template is not None
+        ):
+            raise ValueError("Must provide either template or selector.")
+        elif selector is None:
             selector = LangchainSelector(default_prompt=template)
         else:
-            if template is not None:
-                raise ValueError("Must provide either template or selector.")
             selector = selector
 
         kwargs = selector.default_prompt.partial_variables
@@ -380,19 +376,15 @@ class LangchainPromptTemplate(BasePromptTemplate):
 
     def format(self, llm: Optional[LLM] = None, **kwargs: Any) -> str:
         """Format the prompt into a string."""
-        if llm is not None:
-            # if llamaindex LLM is provided, and we require a langchain LLM,
-            # then error. but otherwise if `requires_langchain_llm` is False,
-            # then we can just use the default prompt
-            if not isinstance(llm, LangChainLLM) and self.requires_langchain_llm:
-                raise ValueError("Must provide a LangChainLLM.")
-            elif not isinstance(llm, LangChainLLM):
-                lc_template = self.selector.default_prompt
-            else:
-                lc_template = self.selector.get_prompt(llm=llm.llm)
-        else:
+        if llm is None:
             lc_template = self.selector.default_prompt
 
+        elif not isinstance(llm, LangChainLLM) and self.requires_langchain_llm:
+            raise ValueError("Must provide a LangChainLLM.")
+        elif not isinstance(llm, LangChainLLM):
+            lc_template = self.selector.default_prompt
+        else:
+            lc_template = self.selector.get_prompt(llm=llm.llm)
         # if there's mappings specified, make sure those are used
         mapped_kwargs = self._map_all_vars(kwargs)
         return lc_template.format(**mapped_kwargs)
@@ -401,19 +393,15 @@ class LangchainPromptTemplate(BasePromptTemplate):
         self, llm: Optional[LLM] = None, **kwargs: Any
     ) -> List[ChatMessage]:
         """Format the prompt into a list of chat messages."""
-        if llm is not None:
-            # if llamaindex LLM is provided, and we require a langchain LLM,
-            # then error. but otherwise if `requires_langchain_llm` is False,
-            # then we can just use the default prompt
-            if not isinstance(llm, LangChainLLM) and self.requires_langchain_llm:
-                raise ValueError("Must provide a LangChainLLM.")
-            elif not isinstance(llm, LangChainLLM):
-                lc_template = self.selector.default_prompt
-            else:
-                lc_template = self.selector.get_prompt(llm=llm.llm)
-        else:
+        if llm is None:
             lc_template = self.selector.default_prompt
 
+        elif not isinstance(llm, LangChainLLM) and self.requires_langchain_llm:
+            raise ValueError("Must provide a LangChainLLM.")
+        elif not isinstance(llm, LangChainLLM):
+            lc_template = self.selector.default_prompt
+        else:
+            lc_template = self.selector.get_prompt(llm=llm.llm)
         # if there's mappings specified, make sure those are used
         mapped_kwargs = self._map_all_vars(kwargs)
         lc_prompt_value = lc_template.format_prompt(**mapped_kwargs)
@@ -421,19 +409,15 @@ class LangchainPromptTemplate(BasePromptTemplate):
         return from_lc_messages(lc_messages)
 
     def get_template(self, llm: Optional[LLM] = None) -> str:
-        if llm is not None:
-            # if llamaindex LLM is provided, and we require a langchain LLM,
-            # then error. but otherwise if `requires_langchain_llm` is False,
-            # then we can just use the default prompt
-            if not isinstance(llm, LangChainLLM) and self.requires_langchain_llm:
-                raise ValueError("Must provide a LangChainLLM.")
-            elif not isinstance(llm, LangChainLLM):
-                lc_template = self.selector.default_prompt
-            else:
-                lc_template = self.selector.get_prompt(llm=llm.llm)
-        else:
+        if llm is None:
             lc_template = self.selector.default_prompt
 
+        elif not isinstance(llm, LangChainLLM) and self.requires_langchain_llm:
+            raise ValueError("Must provide a LangChainLLM.")
+        elif not isinstance(llm, LangChainLLM):
+            lc_template = self.selector.default_prompt
+        else:
+            lc_template = self.selector.get_prompt(llm=llm.llm)
         try:
             return str(lc_template.template)  # type: ignore
         except AttributeError:

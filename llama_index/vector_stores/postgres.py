@@ -45,11 +45,14 @@ def get_data_model(
         impl = TSVECTOR
         cache_ok = cache_okay
 
-    tablename = "data_%s" % index_name  # dynamic table name
-    class_name = "Data%s" % index_name  # dynamic class name
-    indexname = "%s_idx" % index_name  # dynamic class name
+    tablename = f"data_{index_name}"
+    class_name = f"Data{index_name}"
+    indexname = f"{index_name}_idx"
 
     if hybrid_search:
+
+
+
 
         class HybridAbstractData(base):  # type: ignore
             __abstract__ = True  # this line is necessary
@@ -58,12 +61,14 @@ def get_data_model(
             metadata_ = Column(JSON)
             node_id = Column(VARCHAR)
             embedding = Column(Vector(embed_dim))  # type: ignore
-            text_search_tsv = Column(  # type: ignore
+            text_search_tsv = Column(
                 TSVector(),
                 Computed(
-                    "to_tsvector('%s', text)" % text_search_config, persisted=True
+                    f"to_tsvector('{text_search_config}', text)",
+                    persisted=True,
                 ),
             )
+
 
         model = type(
             class_name,
@@ -236,9 +241,7 @@ class PGVectorStore(BasePydanticVectorStore):
 
     @property
     def client(self) -> Any:
-        if not self._is_initialized:
-            return None
-        return self._engine
+        return None if not self._is_initialized else self._engine
 
     def _connect(self) -> Any:
         from sqlalchemy import create_engine

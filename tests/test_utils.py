@@ -110,10 +110,10 @@ def test_iter_batch() -> None:
     lst = list(range(6))
     assert list(iter_batch(lst, 3)) == [[0, 1, 2], [3, 4, 5]]
 
-    gen = (i for i in range(5))
+    gen = iter(range(5))
     assert list(iter_batch(gen, 3)) == [[0, 1, 2], [3, 4]]
 
-    assert list(iter_batch([], 3)) == []
+    assert not list(iter_batch([], 3))
 
 
 def test_get_color_mapping() -> None:
@@ -136,12 +136,12 @@ def test_get_colored_text() -> None:
     for color in _LLAMA_INDEX_COLORS:
         colored_text = _get_colored_text(text, color)
         assert colored_text.startswith("\033[1;3;")
-        assert colored_text.endswith("m" + text + "\033[0m")
+        assert colored_text.endswith(f"m{text}" + "\033[0m")
 
     for color in _ANSI_COLORS:
         colored_text = _get_colored_text(text, color)
         assert colored_text.startswith("\033[1;3;")
-        assert colored_text.endswith("m" + text + "\033[0m")
+        assert colored_text.endswith(f"m{text}" + "\033[0m")
 
     # Test with an unsupported color
     colored_text = _get_colored_text(text, "unsupported_color")

@@ -14,21 +14,16 @@ from tests.conftest import CachedOpenAIApiKeys
 def mock_get_text_embedding(text: str) -> List[float]:
     """Mock get text embedding."""
     # assume dimensions are 5
-    if text == "Hello world.":
+    if text in {"Hello world.", "Hello world backup."}:
         return [1, 0, 0, 0, 0]
-    elif text == "This is a test.":
-        return [0, 1, 0, 0, 0]
-    elif text == "This is another test.":
-        return [0, 0, 1, 0, 0]
     elif text == "This is a test v2.":
         return [0, 0, 0, 1, 0]
     elif text == "This is a test v3.":
         return [0, 0, 0, 0, 1]
-    elif text == "This is bar test.":
+    elif text == "This is a test.":
+        return [0, 1, 0, 0, 0]
+    elif text in {"This is another test.", "This is bar test."}:
         return [0, 0, 1, 0, 0]
-    elif text == "Hello world backup.":
-        # this is used when "Hello world." is deleted.
-        return [1, 0, 0, 0, 0]
     else:
         raise ValueError("Invalid text for `mock_get_text_embedding`.")
 
@@ -49,16 +44,10 @@ def test_get_text_embeddings(
 ) -> None:
     """Test get queued text embeddings."""
     embed_model = OpenAIEmbedding(embed_batch_size=8)
-    texts_to_embed = []
-    for i in range(8):
-        texts_to_embed.append("Hello world.")
-    for i in range(8):
-        texts_to_embed.append("This is a test.")
-    for i in range(4):
-        texts_to_embed.append("This is another test.")
-    for i in range(4):
-        texts_to_embed.append("This is a test v2.")
-
+    texts_to_embed = ["Hello world." for _ in range(8)]
+    texts_to_embed.extend("This is a test." for _ in range(8))
+    texts_to_embed.extend("This is another test." for _ in range(4))
+    texts_to_embed.extend("This is a test v2." for _ in range(4))
     result_embeddings = embed_model.get_text_embedding_batch(texts_to_embed)
     for i in range(8):
         assert result_embeddings[i] == [1, 0, 0, 0, 0]

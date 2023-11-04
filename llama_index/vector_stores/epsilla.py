@@ -92,10 +92,10 @@ class EpsillaVectorStore(VectorStore):
             self._handle_error(msg=response["message"])
         table_list = response["result"]
 
-        if self._collection_name in table_list and overwrite is False:
+        if self._collection_name in table_list and not overwrite:
             self._collection_created = True
 
-        if self._collection_name in table_list and overwrite is True:
+        if self._collection_name in table_list and overwrite:
             status_code, response = self._client.drop_table(
                 table_name=self._collection_name
             )
@@ -159,11 +159,11 @@ class EpsillaVectorStore(VectorStore):
             List[str]: List of ids inserted.
         """
         # If the collection doesn't exist yet, create the collection
-        if not self._collection_created and len(nodes) > 0:
+        if not self._collection_created and nodes:
             dimension = len(nodes[0].get_embedding())
             self._create_collection(dimension)
 
-        elif len(nodes) == 0:
+        elif not nodes:
             return []
 
         ids = []

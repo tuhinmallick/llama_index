@@ -139,7 +139,7 @@ class RedisVectorStore(VectorStore):
             ValueError: If the index already exists and overwrite is False.
         """
         # check to see if empty document list was passed
-        if len(nodes) == 0:
+        if not nodes:
             return []
 
         # set vector dim for creation if index doesn't exist
@@ -347,12 +347,10 @@ class RedisVectorStore(VectorStore):
         ]
 
         # add metadata fields to list of index fields or we won't be able to search them
-        for metadata_field in self._metadata_fields:
-            # TODO: allow addition of text fields as metadata
-            # TODO: make sure we're preventing overwriting other keys (e.g. text,
-            #   doc_id, id, and other vector fields)
-            fields.append(TagField(metadata_field, sortable=False))
-
+        fields.extend(
+            TagField(metadata_field, sortable=False)
+            for metadata_field in self._metadata_fields
+        )
         _logger.info(f"Creating index {self._index_name}")
         self._redis_client.ft(self._index_name).create_index(
             fields=fields,

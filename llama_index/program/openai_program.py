@@ -25,7 +25,7 @@ def _get_json_str(raw_str: str, start_idx: int) -> Tuple[Optional[str], int]:
     for i, c in enumerate(raw_str):
         if c == "{":
             stack_count += 1
-        if c == "}":
+        elif c == "}":
             stack_count -= 1
             if stack_count == 0:
                 return raw_str[: i + 1], i + 2 + start_idx
@@ -133,11 +133,11 @@ class OpenAIPydanticProgram(BaseLLMFunctionProgram[LLM]):
             arguments_str = function_call["arguments"]
             print(f"Function call: {name} with args: {arguments_str}")
 
-        if isinstance(function_call["arguments"], dict):
-            output = self.output_cls.parse_obj(function_call["arguments"])
-        else:
-            output = self.output_cls.parse_raw(function_call["arguments"])
-        return output
+        return (
+            self.output_cls.parse_obj(function_call["arguments"])
+            if isinstance(function_call["arguments"], dict)
+            else self.output_cls.parse_raw(function_call["arguments"])
+        )
 
     async def acall(
         self,
@@ -166,11 +166,11 @@ class OpenAIPydanticProgram(BaseLLMFunctionProgram[LLM]):
             arguments_str = function_call["arguments"]
             print(f"Function call: {name} with args: {arguments_str}")
 
-        if isinstance(function_call["arguments"], dict):
-            output = self.output_cls.parse_obj(function_call["arguments"])
-        else:
-            output = self.output_cls.parse_raw(function_call["arguments"])
-        return output
+        return (
+            self.output_cls.parse_obj(function_call["arguments"])
+            if isinstance(function_call["arguments"], dict)
+            else self.output_cls.parse_raw(function_call["arguments"])
+        )
 
     def stream_list(
         self, *args: Any, **kwargs: Any
@@ -194,16 +194,12 @@ class OpenAIPydanticProgram(BaseLLMFunctionProgram[LLM]):
             kwargs = stream_resp.message.additional_kwargs
             fn_args = kwargs["function_call"]["arguments"]
 
-            # this is inspired by `get_object` from `MultiTaskBase` in
-            # the openai_function_call repo
-
-            if fn_args.find("[") != -1:
-                if obj_start_idx == -1:
-                    obj_start_idx = fn_args.find("[") + 1
-            else:
+            if fn_args.find("[") == -1:
                 # keep going until we find the start position
                 continue
 
+            if obj_start_idx == -1:
+                obj_start_idx = fn_args.find("[") + 1
             new_obj_json_str, obj_start_idx = _get_json_str(fn_args, obj_start_idx)
             if new_obj_json_str is not None:
                 obj_json_str = new_obj_json_str

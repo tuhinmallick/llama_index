@@ -16,23 +16,19 @@ from llama_index.indices.query.base import BaseQueryEngine
 
 
 def asyncio_module(show_progress: bool = False) -> Any:
-    if show_progress:
-        from tqdm.asyncio import tqdm_asyncio
+    if not show_progress:
+        return asyncio
 
-        module = tqdm_asyncio
-    else:
-        module = asyncio
+    from tqdm.asyncio import tqdm_asyncio
 
-    return module
+    return tqdm_asyncio
 
 
 async def aget_responses(
     questions: List[str], query_engine: BaseQueryEngine, show_progress: bool = False
 ) -> List[str]:
     """Get responses."""
-    tasks = []
-    for question in questions:
-        tasks.append(query_engine.aquery(question))
+    tasks = [query_engine.aquery(question) for question in questions]
     asyncio_mod = asyncio_module(show_progress=show_progress)
     return await asyncio_mod.gather(*tasks)
 

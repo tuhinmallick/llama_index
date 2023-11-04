@@ -119,9 +119,9 @@ class RelevancyEvaluator(BaseEvaluator):
 
         if "yes" in raw_response_txt.lower():
             passing = True
+        elif self._raise_error:
+            raise ValueError("The response is invalid")
         else:
-            if self._raise_error:
-                raise ValueError("The response is invalid")
             passing = False
 
         return EvaluationResult(

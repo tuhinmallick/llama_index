@@ -31,9 +31,9 @@ def _to_milvus_filter(standard_filters: MetadataFilters) -> List[str]:
     filters = []
     for filter in standard_filters.filters:
         if isinstance(filter.value, str):
-            filters.append(str(filter.key) + " == " + '"' + str(filter.value) + '"')
+            filters.append(f'{str(filter.key)} == "{str(filter.value)}"')
         else:
-            filters.append(str(filter.key) + " == " + str(filter.value))
+            filters.append(f"{str(filter.key)} == {str(filter.value)}")
     return filters
 
 
@@ -116,7 +116,7 @@ class MilvusVectorStore(VectorStore):
         # Select the similarity metric
         if similarity_metric.lower() in ("ip"):
             self.similarity_metric = "IP"
-        elif similarity_metric.lower() in ("l2", "euclidean"):
+        elif similarity_metric.lower() in {"l2", "euclidean"}:
             self.similarity_metric = "L2"
 
         # Connect to Milvus instance
@@ -196,13 +196,9 @@ class MilvusVectorStore(VectorStore):
         """
         # Adds ability for multiple doc delete in future.
         doc_ids: List[str]
-        if isinstance(ref_doc_id, list):
-            doc_ids = ref_doc_id  # type: ignore
-        else:
-            doc_ids = [ref_doc_id]
-
+        doc_ids = ref_doc_id if isinstance(ref_doc_id, list) else [ref_doc_id]
         # Begin by querying for the primary keys to delete
-        doc_ids = ['"' + entry + '"' for entry in doc_ids]
+        doc_ids = [f'"{entry}"' for entry in doc_ids]
         entries = self.milvusclient.query(
             collection_name=self.collection_name,
             filter=f"{self.doc_id_field} in [{','.join(doc_ids)}]",
@@ -226,31 +222,22 @@ class MilvusVectorStore(VectorStore):
             raise ValueError(f"Milvus does not support {query.mode} yet.")
 
         expr = []
-        output_fields = ["*"]
-
         # Parse the filter
         if query.filters is not None:
             expr.extend(_to_milvus_filter(query.filters))
 
         # Parse any docs we are filtering on
         if query.doc_ids is not None and len(query.doc_ids) != 0:
-            expr_list = ['"' + entry + '"' for entry in query.doc_ids]
+            expr_list = [f'"{entry}"' for entry in query.doc_ids]
             expr.append(f"{self.doc_id_field} in [{','.join(expr_list)}]")
 
         # Parse any nodes we are filtering on
         if query.node_ids is not None and len(query.node_ids) != 0:
-            expr_list = ['"' + entry + '"' for entry in query.node_ids]
+            expr_list = [f'"{entry}"' for entry in query.node_ids]
             expr.append(f"{MILVUS_ID_FIELD} in [{','.join(expr_list)}]")
 
-        # Limit output fields
-        if query.output_fields is not None:
-            output_fields = query.output_fields
-
-        # Convert to string expression
-        string_expr = ""
-        if len(expr) != 0:
-            string_expr = " and ".join(expr)
-
+        output_fields = ["*"] if query.output_fields is None else query.output_fields
+        string_expr = " and ".join(expr) if expr else ""
         # Perform the search
         res = self.milvusclient.search(
             collection_name=self.collection_name,

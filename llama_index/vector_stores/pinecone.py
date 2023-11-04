@@ -91,10 +91,7 @@ def get_default_tokenizer() -> Callable:
 
 def _to_pinecone_filter(standard_filters: MetadataFilters) -> dict:
     """Convert from standard dataclass to pinecone filter dict."""
-    filters = {}
-    for filter in standard_filters.filters:
-        filters[filter.key] = filter.value
-    return filters
+    return {filter.key: filter.value for filter in standard_filters.filters}
 
 
 import_err_msg = (
@@ -323,17 +320,17 @@ class PineconeVectorStore(BasePydanticVectorStore):
             if query.alpha is not None:
                 query_embedding = [v * query.alpha for v in query_embedding]
 
-        if query.filters is not None:
-            if "filter" in kwargs:
-                raise ValueError(
-                    "Cannot specify filter via both query and kwargs. "
-                    "Use kwargs only for pinecone specific items that are "
-                    "not supported via the generic query interface."
-                )
-            filter = _to_pinecone_filter(query.filters)
-        else:
+        if query.filters is None:
             filter = kwargs.pop("filter", {})
 
+        elif "filter" in kwargs:
+            raise ValueError(
+                "Cannot specify filter via both query and kwargs. "
+                "Use kwargs only for pinecone specific items that are "
+                "not supported via the generic query interface."
+            )
+        else:
+            filter = _to_pinecone_filter(query.filters)
         response = self._pinecone_index.query(
             vector=query_embedding,
             sparse_vector=sparse_vector,

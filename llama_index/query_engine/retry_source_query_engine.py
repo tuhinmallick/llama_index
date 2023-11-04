@@ -62,11 +62,12 @@ class RetrySourceQueryEngine(BaseQueryEngine):
             ]
             orig_nodes = typed_response.source_nodes
             assert len(source_evals) == len(orig_nodes)
-            new_docs = []
-            for node, eval_result in zip(orig_nodes, source_evals):
-                if eval_result:
-                    new_docs.append(Document(text=node.node.get_content()))
-            if len(new_docs) == 0:
+            new_docs = [
+                Document(text=node.node.get_content())
+                for node, eval_result in zip(orig_nodes, source_evals)
+                if eval_result
+            ]
+            if not new_docs:
                 raise ValueError("No source nodes passed evaluation.")
             new_index = SummaryIndex.from_documents(
                 new_docs,

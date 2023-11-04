@@ -70,9 +70,7 @@ class BaseEmbedding(BaseComponent):
     def _validate_callback_manager(
         cls, v: Optional[CallbackManager]
     ) -> CallbackManager:
-        if v is None:
-            return CallbackManager([])
-        return v
+        return CallbackManager([]) if v is None else v
 
     @abstractmethod
     def _get_query_embedding(self, query: str) -> Embedding:

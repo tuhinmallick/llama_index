@@ -289,9 +289,7 @@ class OpensearchVectorClient:
                 query_embedding, k, vector_field=self._embedding_field
             )
         else:
-            pre_filter = []
-            for f in filters.filters:
-                pre_filter.append({f.key: json.loads(str(f.value))})
+            pre_filter = [{f.key: json.loads(str(f.value))} for f in filters.filters]
             # https://opensearch.org/docs/latest/search-plugins/knn/painless-functions/
             search_query = _default_painless_scripting_query(
                 query_embedding,

@@ -1,4 +1,5 @@
 """Test MongoDB Atlas Vector Search functionality."""
+
 from __future__ import annotations
 
 import os
@@ -17,7 +18,7 @@ try:
     collection = test_client[DB_NAME][COLLECTION_NAME]
 
     pymongo_available = True
-except (ImportError, Exception):
+except Exception:
     pymongo_available = False
 
 from llama_index.schema import NodeRelationship, RelatedNodeInfo, TextNode

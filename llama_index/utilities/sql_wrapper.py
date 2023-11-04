@@ -67,15 +67,13 @@ class SQLDatabase:
 
         self._include_tables = set(include_tables) if include_tables else set()
         if self._include_tables:
-            missing_tables = self._include_tables - self._all_tables
-            if missing_tables:
+            if missing_tables := self._include_tables - self._all_tables:
                 raise ValueError(
                     f"include_tables {missing_tables} not found in database"
                 )
         self._ignore_tables = set(ignore_tables) if ignore_tables else set()
         if self._ignore_tables:
-            missing_tables = self._ignore_tables - self._all_tables
-            if missing_tables:
+            if missing_tables := self._ignore_tables - self._all_tables:
                 raise ValueError(
                     f"ignore_tables {missing_tables} not found in database"
                 )
@@ -165,12 +163,10 @@ class SQLDatabase:
                 columns.append(f"{column['name']} ({column['type']!s})")
 
         column_str = ", ".join(columns)
-        foreign_keys = []
-        for foreign_key in self._inspector.get_foreign_keys(table_name):
-            foreign_keys.append(
-                f"{foreign_key['constrained_columns']} -> "
-                f"{foreign_key['referred_table']}.{foreign_key['referred_columns']}"
-            )
+        foreign_keys = [
+            f"{foreign_key['constrained_columns']} -> {foreign_key['referred_table']}.{foreign_key['referred_columns']}"
+            for foreign_key in self._inspector.get_foreign_keys(table_name)
+        ]
         foreign_key_str = ", ".join(foreign_keys)
         return template.format(
             table_name=table_name, columns=column_str, foreign_keys=foreign_key_str

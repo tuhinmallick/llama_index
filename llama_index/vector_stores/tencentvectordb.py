@@ -277,7 +277,7 @@ class TencentVectorDB(VectorStore):
         if collection_params.collection_name != DEFAULT_COLLECTION_NAME:
             return collection_params.collection_name
         else:
-            return database_name + "_" + DEFAULT_COLLECTION_NAME
+            return f"{database_name}_{DEFAULT_COLLECTION_NAME}"
 
     def _create_collection_in_db(
         self,
@@ -445,7 +445,7 @@ class TencentVectorDB(VectorStore):
             ref_doc_id (str): The doc_id of the document to delete.
 
         """
-        if ref_doc_id is None or len(ref_doc_id) == 0:
+        if ref_doc_id is None or not ref_doc_id:
             return
 
         from tcvectordb.model.document import Filter

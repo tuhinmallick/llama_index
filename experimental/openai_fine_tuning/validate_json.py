@@ -61,7 +61,9 @@ def validate_json(data_path: str) -> None:
             if not content or not isinstance(content, str):
                 format_errors["missing_content"] += 1
 
-        if not any(message.get("role", None) == "assistant" for message in messages):
+        if all(
+            message.get("role", None) != "assistant" for message in messages
+        ):
             format_errors["example_missing_assistant_message"] += 1
 
     if format_errors:
@@ -117,9 +119,9 @@ def validate_json(data_path: str) -> None:
 
     for ex in dataset:
         messages = ex["messages"]
-        if not any(message["role"] == "system" for message in messages):
+        if all(message["role"] != "system" for message in messages):
             n_missing_system += 1
-        if not any(message["role"] == "user" for message in messages):
+        if all(message["role"] != "user" for message in messages):
             n_missing_user += 1
         n_messages.append(len(messages))
         convo_lens.append(num_tokens_from_messages(messages))

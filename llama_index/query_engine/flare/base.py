@@ -175,18 +175,16 @@ class FLAREInstructQueryEngine(BaseQueryEngine):
             updated_lookahead_resp
         )
         if len(remaining_query_tasks) == 0:
-            relevant_lookahead_resp = updated_lookahead_resp
-        else:
-            first_task = remaining_query_tasks[0]
-            relevant_lookahead_resp = updated_lookahead_resp[: first_task.start_idx]
-        return relevant_lookahead_resp
+            return updated_lookahead_resp
+        first_task = remaining_query_tasks[0]
+        return updated_lookahead_resp[: first_task.start_idx]
 
     def _query(self, query_bundle: QueryBundle) -> RESPONSE_TYPE:
         """Query and get response."""
         print_text(f"Query: {query_bundle.query_str}\n", color="green")
         cur_response = ""
         source_nodes = []
-        for iter in range(self._max_iterations):
+        for _ in range(self._max_iterations):
             if self._verbose:
                 print_text(f"Current response: {cur_response}\n", color="blue")
             # generate "lookahead response" that contains "[Search(query)]" tags
@@ -204,7 +202,7 @@ class FLAREInstructQueryEngine(BaseQueryEngine):
 
             is_done, fmt_lookahead = self._done_output_parser.parse(lookahead_resp)
             if is_done:
-                cur_response = cur_response.strip() + " " + fmt_lookahead.strip()
+                cur_response = f"{cur_response.strip()} {fmt_lookahead.strip()}"
                 break
 
             # parse lookahead response into query tasks
@@ -239,15 +237,12 @@ class FLAREInstructQueryEngine(BaseQueryEngine):
 
             if self._verbose:
                 print_text(
-                    "Updated lookahead response: "
-                    + f"{relevant_lookahead_resp_wo_prefix}\n",
+                    f"Updated lookahead response: {relevant_lookahead_resp_wo_prefix}\n",
                     color="pink",
                 )
 
             # append the relevant lookahead response to the final response
-            cur_response = (
-                cur_response.strip() + " " + relevant_lookahead_resp_wo_prefix.strip()
-            )
+            cur_response = f"{cur_response.strip()} {relevant_lookahead_resp_wo_prefix.strip()}"
 
         # NOTE: at the moment, does not support streaming
         return Response(response=cur_response, source_nodes=source_nodes)

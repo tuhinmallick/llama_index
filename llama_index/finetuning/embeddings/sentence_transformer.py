@@ -78,5 +78,5 @@ class SentenceTransformersFinetuneEngine(BaseEmbeddingFinetuneEngine):
 
     def get_finetuned_model(self, **model_kwargs: Any) -> BaseEmbedding:
         """Gets finetuned model."""
-        embed_model_str = "local:" + self.model_output_path
+        embed_model_str = f"local:{self.model_output_path}"
         return resolve_embed_model(embed_model_str)

@@ -44,7 +44,7 @@ try:
     conn__.close()
 
     postgres_not_available = False
-except (ImportError, Exception):
+except Exception:
     postgres_not_available = True
 
 
@@ -210,10 +210,7 @@ async def test_add_to_db_and_query(
     assert isinstance(pg, PGVectorStore)
     assert hasattr(pg, "_engine")
     q = VectorStoreQuery(query_embedding=_get_sample_vector(1.0), similarity_top_k=1)
-    if use_async:
-        res = await pg.aquery(q)
-    else:
-        res = pg.query(q)
+    res = await pg.aquery(q) if use_async else pg.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "aaa"
@@ -237,10 +234,7 @@ async def test_add_to_db_and_query_with_metadata_filters(
     q = VectorStoreQuery(
         query_embedding=_get_sample_vector(0.5), similarity_top_k=10, filters=filters
     )
-    if use_async:
-        res = await pg.aquery(q)
-    else:
-        res = pg.query(q)
+    res = await pg.aquery(q) if use_async else pg.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "bbb"
@@ -261,10 +255,7 @@ async def test_add_to_db_query_and_delete(
 
     q = VectorStoreQuery(query_embedding=_get_sample_vector(0.1), similarity_top_k=1)
 
-    if use_async:
-        res = await pg.aquery(q)
-    else:
-        res = pg.query(q)
+    res = await pg.aquery(q) if use_async else pg.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "bbb"
@@ -285,10 +276,7 @@ async def test_save_load(
 
     q = VectorStoreQuery(query_embedding=_get_sample_vector(0.1), similarity_top_k=1)
 
-    if use_async:
-        res = await pg.aquery(q)
-    else:
-        res = pg.query(q)
+    res = await pg.aquery(q) if use_async else pg.query(q)
     assert res.nodes
     assert len(res.nodes) == 1
     assert res.nodes[0].node_id == "bbb"
@@ -302,10 +290,7 @@ async def test_save_load(
     for key, val in pg.to_dict().items():
         assert loaded_pg_dict[key] == val
 
-    if use_async:
-        res = await loaded_pg.aquery(q)
-    else:
-        res = loaded_pg.query(q)
+    res = await loaded_pg.aquery(q) if use_async else loaded_pg.query(q)
     assert hasattr(loaded_pg, "_engine")
     assert res.nodes
     assert len(res.nodes) == 1
@@ -337,10 +322,7 @@ async def test_sparse_query(
         mode=VectorStoreQueryMode.SPARSE,
     )
 
-    if use_async:
-        res = await pg_hybrid.aquery(q)
-    else:
-        res = pg_hybrid.query(q)
+    res = await pg_hybrid.aquery(q) if use_async else pg_hybrid.query(q)
     assert res.nodes
     assert len(res.nodes) == 2
     assert res.nodes[0].node_id == "ccc"
@@ -370,10 +352,7 @@ async def test_hybrid_query(
         sparse_top_k=1,
     )
 
-    if use_async:
-        res = await pg_hybrid.aquery(q)
-    else:
-        res = pg_hybrid.query(q)
+    res = await pg_hybrid.aquery(q) if use_async else pg_hybrid.query(q)
     assert res.nodes
     assert len(res.nodes) == 3
     assert res.nodes[0].node_id == "aaa"
@@ -388,10 +367,7 @@ async def test_hybrid_query(
         mode=VectorStoreQueryMode.HYBRID,
     )
 
-    if use_async:
-        res = await pg_hybrid.aquery(q)
-    else:
-        res = pg_hybrid.query(q)
+    res = await pg_hybrid.aquery(q) if use_async else pg_hybrid.query(q)
     assert res.nodes
     assert len(res.nodes) == 4
     assert res.nodes[0].node_id == "aaa"
@@ -407,10 +383,7 @@ async def test_hybrid_query(
         mode=VectorStoreQueryMode.HYBRID,
     )
 
-    if use_async:
-        res = await pg_hybrid.aquery(q)
-    else:
-        res = pg_hybrid.query(q)
+    res = await pg_hybrid.aquery(q) if use_async else pg_hybrid.query(q)
     assert res.nodes
     assert len(res.nodes) == 4
     assert res.nodes[0].node_id == "aaa"
@@ -443,10 +416,7 @@ async def test_add_to_db_and_hybrid_query_with_metadata_filters(
         filters=filters,
         mode=VectorStoreQueryMode.HYBRID,
     )
-    if use_async:
-        res = await pg_hybrid.aquery(q)
-    else:
-        res = pg_hybrid.query(q)
+    res = await pg_hybrid.aquery(q) if use_async else pg_hybrid.query(q)
     assert res.nodes
     assert len(res.nodes) == 2
     assert res.nodes[0].node_id == "bbb"
@@ -482,10 +452,7 @@ async def test_add_to_db_and_query_index_nodes(
     assert isinstance(pg, PGVectorStore)
     assert hasattr(pg, "_engine")
     q = VectorStoreQuery(query_embedding=_get_sample_vector(5.0), similarity_top_k=2)
-    if use_async:
-        res = await pg.aquery(q)
-    else:
-        res = pg.query(q)
+    res = await pg.aquery(q) if use_async else pg.query(q)
     assert res.nodes
     assert len(res.nodes) == 2
     assert res.nodes[0].node_id == "aaa_ref"

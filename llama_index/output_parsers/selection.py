@@ -39,7 +39,7 @@ class SelectionOutputParser(BaseOutputParser):
     def _filter_dict(self, json_dict: dict) -> dict:
         """Filter recursively until a dictionary matches all REQUIRED_KEYS."""
         output_dict = json_dict
-        for key, val in json_dict.items():
+        for key, val in output_dict.items():
             if key in self.REQUIRED_KEYS:
                 continue
             elif isinstance(val, dict):
@@ -54,12 +54,7 @@ class SelectionOutputParser(BaseOutputParser):
     def _format_output(self, output: List[dict]) -> List[dict]:
         output_json = []
         for json_dict in output:
-            valid = True
-            for key in self.REQUIRED_KEYS:
-                if key not in json_dict:
-                    valid = False
-                    break
-
+            valid = all(key in json_dict for key in self.REQUIRED_KEYS)
             if not valid:
                 json_dict = self._filter_dict(json_dict)
 

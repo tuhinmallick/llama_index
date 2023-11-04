@@ -30,7 +30,7 @@ class BeirEvaluator:
 
         dataset_paths = {}
         for dataset in datasets:
-            dataset_full_path = os.path.join(cache_dir, "datasets", "BeIR__" + dataset)
+            dataset_full_path = os.path.join(cache_dir, "datasets", f"BeIR__{dataset}")
             if not os.path.exists(dataset_full_path):
                 url = f"""https://public.ukp.informatik.tu-darmstadt.de/thakur\
 /BEIR/datasets/{dataset}.zip"""

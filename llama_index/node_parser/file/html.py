@@ -104,7 +104,6 @@ class HTMLNodeParser(NodeParser):
         for tag in tags:
             tag_text = self._extract_text_from_tag(tag)
             if tag.name == last_tag or last_tag is None:
-                last_tag = tag.name
                 current_section += f"{tag_text.strip()}\n"
             else:
                 html_nodes.append(
@@ -112,9 +111,9 @@ class HTMLNodeParser(NodeParser):
                         current_section.strip(), node, {"tag": last_tag}
                     )
                 )
-                last_tag = tag.name
                 current_section = f"{tag_text}\n"
 
+            last_tag = tag.name
         if current_section:
             html_nodes.append(
                 self._build_node_from_split(

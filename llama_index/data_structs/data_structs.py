@@ -81,12 +81,10 @@ class IndexGraph(IndexStruct):
         """Get children nodes."""
         if parent_node is None:
             return self.root_nodes
-        else:
-            parent_id = parent_node.node_id
-            children_ids = self.node_id_to_children_ids[parent_id]
-            return {
-                self.node_id_to_index[child_id]: child_id for child_id in children_ids
-            }
+        children_ids = self.node_id_to_children_ids[parent_node.node_id]
+        return {
+            self.node_id_to_index[child_id]: child_id for child_id in children_ids
+        }
 
     def insert_under_parent(
         self,
@@ -237,9 +235,7 @@ class KG(IndexStruct):
 
     def search_node_by_keyword(self, keyword: str) -> List[str]:
         """Search for nodes by keyword."""
-        if keyword not in self.table:
-            return []
-        return list(self.table[keyword])
+        return [] if keyword not in self.table else list(self.table[keyword])
 
     @classmethod
     def get_type(cls) -> IndexStructType:

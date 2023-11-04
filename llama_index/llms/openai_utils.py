@@ -77,19 +77,15 @@ GPT3_MODELS = {
     "davinci": 2049,
 }
 
-ALL_AVAILABLE_MODELS = {
-    **GPT4_MODELS,
-    **TURBO_MODELS,
-    **GPT3_5_MODELS,
-    **GPT3_MODELS,
-    **AZURE_TURBO_MODELS,
-}
+ALL_AVAILABLE_MODELS = (
+    GPT4_MODELS
+    | TURBO_MODELS
+    | GPT3_5_MODELS
+    | GPT3_MODELS
+    | AZURE_TURBO_MODELS
+)
 
-CHAT_MODELS = {
-    **GPT4_MODELS,
-    **TURBO_MODELS,
-    **AZURE_TURBO_MODELS,
-}
+CHAT_MODELS = GPT4_MODELS | TURBO_MODELS | AZURE_TURBO_MODELS
 
 
 DISCONTINUED_MODELS = {
@@ -235,10 +231,7 @@ def is_function_calling_model(model: str) -> bool:
 
 
 def get_completion_endpoint(is_chat_model: bool) -> CompletionClientType:
-    if is_chat_model:
-        return openai.ChatCompletion
-    else:
-        return openai.Completion
+    return openai.ChatCompletion if is_chat_model else openai.Completion
 
 
 def to_openai_message_dict(message: ChatMessage, drop_none: bool = False) -> dict:
@@ -327,10 +320,10 @@ def resolve_openai_credentials(
     api_base = api_base or openai.api_base or DEFAULT_OPENAI_API_BASE
     api_version = api_version or openai.api_version or DEFAULT_OPENAI_API_VERSION
 
-    if not api_key and api_type not in ("azuread", "azure_ad"):
+    if api_key or api_type in ("azuread", "azure_ad"):
+        return api_key, api_type, api_base, api_version
+    else:
         raise ValueError(MISSING_API_KEY_ERROR_MESSAGE)
-
-    return api_key, api_type, api_base, api_version
 
 
 def refresh_openai_azuread_token(
@@ -373,7 +366,4 @@ def validate_openai_api_key(api_key: Optional[str] = None) -> None:
 
 
 def resolve_from_aliases(*args: Optional[str]) -> Optional[str]:
-    for arg in args:
-        if arg is not None:
-            return arg
-    return None
+    return next((arg for arg in args if arg is not None), None)

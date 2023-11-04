@@ -298,10 +298,10 @@ class ServiceContext:
         if isinstance(self.node_parser, (SimpleNodeParser, SentenceWindowNodeParser)):
             if self.node_parser.metadata_extractor:
                 metadata_extractor_dict = self.node_parser.metadata_extractor.to_dict()
-                extractor_dicts = []
-                for extractor in self.node_parser.metadata_extractor.extractors:
-                    extractor_dicts.append(extractor.to_dict())
-
+                extractor_dicts = [
+                    extractor.to_dict()
+                    for extractor in self.node_parser.metadata_extractor.extractors
+                ]
         return ServiceContextData(
             llm=llm_dict,
             llm_predictor=llm_predictor_dict,
@@ -333,10 +333,10 @@ class ServiceContext:
 
         extractors = None
         if service_context_data.extractors:
-            extractors = []
-            for extractor_dict in service_context_data.extractors:
-                extractors.append(load_extractor(extractor_dict, llm=llm))
-
+            extractors = [
+                load_extractor(extractor_dict, llm=llm)
+                for extractor_dict in service_context_data.extractors
+            ]
         metadata_extractor = None
         if service_context_data.metadata_extractor:
             metadata_extractor = load_extractor(

@@ -38,13 +38,11 @@ def _to_weaviate_filter(standard_filters: MetadataFilters) -> Dict[str, Any]:
             "operator": "Equal",
             "valueText": standard_filters.filters[0].value,
         }
-    else:
-        operands = []
-        for filter in standard_filters.filters:
-            operands.append(
-                {"path": filter.key, "operator": "Equal", "valueText": filter.value}
-            )
-        return {"operands": operands, "operator": "And"}
+    operands = [
+        {"path": filter.key, "operator": "Equal", "valueText": filter.value}
+        for filter in standard_filters.filters
+    ]
+    return {"operands": operands, "operator": "And"}
 
 
 import_err_msg = (

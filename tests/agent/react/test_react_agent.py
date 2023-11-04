@@ -195,7 +195,7 @@ def test_stream_chat_basic(
     assert isinstance(response, StreamingAgentChatResponse)
 
     # exhaust stream
-    for delta in response.response_gen:
+    for _ in response.response_gen:
         continue
     expected_answer = MOCK_STREAM_FINAL_RESPONSE.split("Answer: ")[-1].strip()
     assert response.response == expected_answer

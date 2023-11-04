@@ -62,7 +62,7 @@ def validate_client(client: Any) -> None:
 def parse_get_response(response: Dict) -> Dict:
     """Parse get response from Weaviate."""
     if "errors" in response:
-        raise ValueError("Invalid query, got errors: {}".format(response["errors"]))
+        raise ValueError(f'Invalid query, got errors: {response["errors"]}')
     data_response = response["data"]
     if "Get" not in data_response:
         raise ValueError("Invalid query response, must be a Get query.")
@@ -106,11 +106,7 @@ def get_node_similarity(entry: Dict, similarity_key: str = "distance") -> float:
     """Get converted node similarity from distance."""
     distance = entry["_additional"].get(similarity_key, 0.0)
 
-    if distance is None:
-        return 1.0
-
-    # convert distance https://forum.weaviate.io/t/distance-vs-certainty-scores/258
-    return 1.0 - float(distance)
+    return 1.0 if distance is None else 1.0 - float(distance)
 
 
 def to_node(entry: Dict, text_key: str = DEFAULT_TEXT_KEY) -> TextNode:
@@ -146,9 +142,7 @@ def add_node(
     text_key: str = DEFAULT_TEXT_KEY,
 ) -> None:
     """Add node."""
-    metadata = {}
-    metadata[text_key] = node.get_content(metadata_mode=MetadataMode.NONE) or ""
-
+    metadata = {text_key: node.get_content(metadata_mode=MetadataMode.NONE) or ""}
     additional_metadata = node_to_metadata_dict(
         node, remove_text=True, flat_metadata=False
     )

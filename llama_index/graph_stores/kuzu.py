@@ -27,16 +27,13 @@ class KuzuGraphStore(GraphStore):
         node_tables = self.connection._get_node_table_names()
         if self.node_table_name not in node_tables:
             self.connection.execute(
-                "CREATE NODE TABLE %s (ID STRING, PRIMARY KEY(ID))"
-                % self.node_table_name
+                f"CREATE NODE TABLE {self.node_table_name} (ID STRING, PRIMARY KEY(ID))"
             )
         rel_tables = self.connection._get_rel_table_names()
         rel_tables = [rel_table["name"] for rel_table in rel_tables]
         if self.rel_table_name not in rel_tables:
             self.connection.execute(
-                "CREATE REL TABLE {} (FROM {} TO {}, predicate STRING)".format(
-                    self.rel_table_name, self.node_table_name, self.node_table_name
-                )
+                f"CREATE REL TABLE {self.rel_table_name} (FROM {self.node_table_name} TO {self.node_table_name}, predicate STRING)"
             )
 
     @property
@@ -65,11 +62,7 @@ class KuzuGraphStore(GraphStore):
     ) -> Dict[str, List[List[str]]]:
         """Get depth-aware rel map."""
         rel_wildcard = "r:%s*1..%d" % (self.rel_table_name, depth)
-        match_clause = "MATCH (n1:{})-[{}]->(n2:{})".format(
-            self.node_table_name,
-            rel_wildcard,
-            self.node_table_name,
-        )
+        match_clause = f"MATCH (n1:{self.node_table_name})-[{rel_wildcard}]->(n2:{self.node_table_name})"
         return_clause = "RETURN n1, r, n2 LIMIT %d" % limit
         params = []
         if subjs is not None:
@@ -102,8 +95,7 @@ class KuzuGraphStore(GraphStore):
             for rel in recursive_rel["_rels"]:
                 predicate = rel["predicate"]
                 curr_subj_id = nodes_map[(rel["_src"]["table"], rel["_src"]["offset"])]
-                curr_path.append(curr_subj_id)
-                curr_path.append(predicate)
+                curr_path.extend((curr_subj_id, predicate))
             # Add the last node
             curr_path.append(obj["ID"])
             if subj["ID"] not in retval:
@@ -116,7 +108,7 @@ class KuzuGraphStore(GraphStore):
 
         def check_entity_exists(connection: Any, entity: str) -> bool:
             is_exists_result = connection.execute(
-                "MATCH (n:%s) WHERE n.ID = $entity RETURN n.ID" % self.node_table_name,
+                f"MATCH (n:{self.node_table_name}) WHERE n.ID = $entity RETURN n.ID",
                 [("entity", entity)],
             )
             return is_exists_result.has_next()
@@ -181,7 +173,7 @@ class KuzuGraphStore(GraphStore):
 
         def delete_entity(connection: Any, entity: str) -> None:
             connection.execute(
-                "MATCH (n:%s) WHERE n.ID = $entity DELETE n" % self.node_table_name,
+                f"MATCH (n:{self.node_table_name}) WHERE n.ID = $entity DELETE n",
                 [("entity", entity)],
             )
 

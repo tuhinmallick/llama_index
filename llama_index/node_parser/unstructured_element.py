@@ -93,8 +93,6 @@ def extract_elements(
                         id=f"id_{idx}", type="table", element=element, table=table_df
                     )
                 )
-            else:
-                pass
         else:
             output_els.append(Element(id=f"id_{idx}", type="text", element=element))
     return output_els
@@ -306,20 +304,11 @@ class UnstructuredElementNodeParser(NodeParser):
         node_dict = {node.node_id: node for node in nodes}
 
         node_mappings = {}
-        base_nodes = []
-
         # first map index nodes to their child nodes
         nonbase_node_ids = set()
         for node in nodes:
             if isinstance(node, IndexNode):
                 node_mappings[node.index_id] = node_dict[node.index_id]
                 nonbase_node_ids.add(node.index_id)
-            else:
-                pass
-
-        # then add all nodes that are not children of index nodes
-        for node in nodes:
-            if node.node_id not in nonbase_node_ids:
-                base_nodes.append(node)
-
+        base_nodes = [node for node in nodes if node.node_id not in nonbase_node_ids]
         return base_nodes, node_mappings

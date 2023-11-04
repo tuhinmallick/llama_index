@@ -227,15 +227,9 @@ def llm_chat_callback() -> Callable:
             f.__wrapped__ = True  # type: ignore
 
         if asyncio.iscoroutinefunction(f):
-            if is_wrapped:
-                return async_dummy_wrapper
-            else:
-                return wrapped_async_llm_chat
+            return async_dummy_wrapper if is_wrapped else wrapped_async_llm_chat
         else:
-            if is_wrapped:
-                return dummy_wrapper
-            else:
-                return wrapped_llm_chat
+            return dummy_wrapper if is_wrapped else wrapped_llm_chat
 
     return wrap
 
@@ -352,15 +346,9 @@ def llm_completion_callback() -> Callable:
             f.__wrapped__ = True  # type: ignore
 
         if asyncio.iscoroutinefunction(f):
-            if is_wrapped:
-                return async_dummy_wrapper
-            else:
-                return wrapped_async_llm_predict
+            return async_dummy_wrapper if is_wrapped else wrapped_async_llm_predict
         else:
-            if is_wrapped:
-                return dummy_wrapper
-            else:
-                return wrapped_llm_predict
+            return dummy_wrapper if is_wrapped else wrapped_llm_predict
 
     return wrap
 
@@ -377,9 +365,7 @@ class LLM(BaseComponent):
 
     @validator("callback_manager", pre=True)
     def _validate_callback_manager(cls, v: CallbackManager) -> CallbackManager:
-        if v is None:
-            return CallbackManager([])
-        return v
+        return CallbackManager([]) if v is None else v
 
     @property
     @abstractmethod

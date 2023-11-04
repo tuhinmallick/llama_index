@@ -22,10 +22,7 @@ def _to_bagel_filter(standard_filters: MetadataFilters) -> dict:
     """
     Translate standard metadata filters to Bagel specific spec.
     """
-    filters = {}
-    for filter in standard_filters.filters:
-        filters[filter.key] = filter.value
-    return filters
+    return {filter.key: filter.value for filter in standard_filters.filters}
 
 
 class BagelVectorStore(VectorStore):
@@ -128,13 +125,13 @@ class BagelVectorStore(VectorStore):
         if not self._collection:
             raise ValueError("collection not set")
 
-        if query.filters is not None:
-            if "where" in kwargs:
-                raise ValueError("Cannot specify both filters and where")
-            where = _to_bagel_filter(query.filters)
-        else:
+        if query.filters is None:
             where = kwargs.get("where", {})
 
+        elif "where" in kwargs:
+            raise ValueError("Cannot specify both filters and where")
+        else:
+            where = _to_bagel_filter(query.filters)
         results = self._collection.find(
             query_embeddings=query.query_embedding,
             where=where,

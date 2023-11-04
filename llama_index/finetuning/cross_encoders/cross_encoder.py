@@ -96,27 +96,24 @@ class CrossEncoderFinetuneEngine(BaseCrossEncoderFinetuningEngine):
         # https://github.com/UKPLab/sentence-transformers/issues/2324
         if self.evaluator is None:
             self.model.save(self.model_output_path)
-        else:
-            pass
 
     def push_to_hub(self, repo_id: Any = None) -> None:
         """
         Saves the model and tokenizer to HuggingFace hub.
         """
-        if repo_id is not None:
-            try:
-                self.model.model.push_to_hub(repo_id=repo_id)
-                self.model.tokenizer.push_to_hub(repo_id=repo_id)
-
-            except ValueError:
-                raise ValueError(
-                    "HuggingFace CLI/Hub login not "
-                    "completed provide token to login using"
-                    "huggingface_hub.login() see this "
-                    "https://huggingface.co/docs/transformers/model_sharing#share-a-model"
-                )
-        else:
+        if repo_id is None:
             raise ValueError("No value provided for repo_id")
+        try:
+            self.model.model.push_to_hub(repo_id=repo_id)
+            self.model.tokenizer.push_to_hub(repo_id=repo_id)
+
+        except ValueError:
+            raise ValueError(
+                "HuggingFace CLI/Hub login not "
+                "completed provide token to login using"
+                "huggingface_hub.login() see this "
+                "https://huggingface.co/docs/transformers/model_sharing#share-a-model"
+            )
 
     def get_finetuned_model(
         self, model_name: str, top_n: int = 3

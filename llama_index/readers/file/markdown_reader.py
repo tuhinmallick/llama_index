@@ -44,10 +44,9 @@ class MarkdownReader(BaseReader):
         current_text = ""
 
         for line in lines:
-            header_match = re.match(r"^#+\s", line)
-            if header_match:
+            if header_match := re.match(r"^#+\s", line):
                 if current_header is not None:
-                    if current_text == "" or None:
+                    if current_text == "":
                         continue
                     markdown_tups.append((current_header, current_text))
 
@@ -57,18 +56,19 @@ class MarkdownReader(BaseReader):
                 current_text += line + "\n"
         markdown_tups.append((current_header, current_text))
 
-        if current_header is not None:
-            # pass linting, assert keys are defined
-            markdown_tups = [
-                (re.sub(r"#", "", cast(str, key)).strip(), re.sub(r"<.*?>", "", value))
+        return (
+            [
+                (
+                    re.sub(r"#", "", cast(str, key)).strip(),
+                    re.sub(r"<.*?>", "", value),
+                )
                 for key, value in markdown_tups
             ]
-        else:
-            markdown_tups = [
+            if current_header is not None
+            else [
                 (key, re.sub("<.*?>", "", value)) for key, value in markdown_tups
             ]
-
-        return markdown_tups
+        )
 
     def remove_images(self, content: str) -> str:
         """Get a dictionary of a markdown file from its path."""

@@ -35,11 +35,11 @@ class PsychicReader(BaseReader):
             )
         if psychic_key is None:
             psychic_key = os.environ["PSYCHIC_SECRET_KEY"]
-            if psychic_key is None:
-                raise ValueError(
-                    "Must specify `psychic_key` or set environment "
-                    "variable `PSYCHIC_SECRET_KEY`."
-                )
+        if psychic_key is None:
+            raise ValueError(
+                "Must specify `psychic_key` or set environment "
+                "variable `PSYCHIC_SECRET_KEY`."
+            )
 
         self.psychic = Psychic(secret_key=psychic_key)
         self.ConnectorId = ConnectorId

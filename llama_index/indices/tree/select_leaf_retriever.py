@@ -122,9 +122,7 @@ class TreeSelectLeafRetriever(BaseRetriever):
                 level=level + 1,
             )
 
-        if prev_response is None:
-            return cur_response
-        else:
+        if prev_response is not None:
             context_msg = selected_node.get_content(metadata_mode=MetadataMode.LLM)
             cur_response = self._service_context.llm_predictor.predict(
                 self._refine_template,
@@ -134,7 +132,7 @@ class TreeSelectLeafRetriever(BaseRetriever):
             )
 
             logger.debug(f">[Level {level}] Current refined response: {cur_response} ")
-            return cur_response
+        return cur_response
 
     def _query_level(
         self,
@@ -391,7 +389,7 @@ class TreeSelectLeafRetriever(BaseRetriever):
             node_dict = self._index_struct.get_children(node)
             children_nodes.update(node_dict)
 
-        if len(children_nodes) == 0:
+        if not children_nodes:
             # NOTE: leaf level
             return selected_nodes
         else:

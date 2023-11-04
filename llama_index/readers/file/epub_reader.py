@@ -28,16 +28,12 @@ class EpubReader(BaseReader):
                 "`pip install EbookLib html2text`"
             )
 
-        text_list = []
         book = epub.read_epub(file, options={"ignore_ncx": True})
 
-        # Iterate through all chapters.
-        for item in book.get_items():
-            # Chapters are typically located in epub documents items.
-            if item.get_type() == ebooklib.ITEM_DOCUMENT:
-                text_list.append(
-                    html2text.html2text(item.get_content().decode("utf-8"))
-                )
-
+        text_list = [
+            html2text.html2text(item.get_content().decode("utf-8"))
+            for item in book.get_items()
+            if item.get_type() == ebooklib.ITEM_DOCUMENT
+        ]
         text = "\n".join(text_list)
         return [Document(text=text, metadata=extra_info or {})]

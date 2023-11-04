@@ -57,11 +57,11 @@ class GPTIndexMemory(Memory):
         return [self.memory_key]
 
     def _get_prompt_input_key(self, inputs: Dict[str, Any]) -> str:
-        if self.input_key is None:
-            prompt_input_key = get_prompt_input_key(inputs, self.memory_variables)
-        else:
-            prompt_input_key = self.input_key
-        return prompt_input_key
+        return (
+            get_prompt_input_key(inputs, self.memory_variables)
+            if self.input_key is None
+            else self.input_key
+        )
 
     def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, str]:
         """Return key-value pairs given the text input to the chain."""
@@ -84,8 +84,8 @@ class GPTIndexMemory(Memory):
             output_key = next(iter(outputs.keys()))
         else:
             output_key = self.output_key
-        human = f"{self.human_prefix}: " + inputs[prompt_input_key]
-        ai = f"{self.ai_prefix}: " + outputs[output_key]
+        human = f"{self.human_prefix}: {inputs[prompt_input_key]}"
+        ai = f"{self.ai_prefix}: {outputs[output_key]}"
         doc_text = f"{human}\n{ai}"
         doc = Document(text=doc_text)
         self.index.insert(doc)
@@ -129,11 +129,11 @@ class GPTIndexChatMemory(BaseChatMemory):
         return [self.memory_key]
 
     def _get_prompt_input_key(self, inputs: Dict[str, Any]) -> str:
-        if self.input_key is None:
-            prompt_input_key = get_prompt_input_key(inputs, self.memory_variables)
-        else:
-            prompt_input_key = self.input_key
-        return prompt_input_key
+        return (
+            get_prompt_input_key(inputs, self.memory_variables)
+            if self.input_key is None
+            else self.input_key
+        )
 
     def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, str]:
         """Return key-value pairs given the text input to the chain."""
@@ -184,8 +184,8 @@ class GPTIndexChatMemory(BaseChatMemory):
         self.id_to_message[human_message_id] = human_message
         self.id_to_message[ai_message_id] = ai_message
 
-        human_txt = f"{self.human_prefix}: " + inputs[prompt_input_key]
-        ai_txt = f"{self.ai_prefix}: " + outputs[output_key]
+        human_txt = f"{self.human_prefix}: {inputs[prompt_input_key]}"
+        ai_txt = f"{self.ai_prefix}: {outputs[output_key]}"
         human_doc = Document(text=human_txt, id_=human_message_id)
         ai_doc = Document(text=ai_txt, id_=ai_message_id)
         self.index.insert(human_doc)

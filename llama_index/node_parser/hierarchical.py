@@ -26,20 +26,20 @@ def _add_parent_child_relationship(parent_node: BaseNode, child_node: BaseNode) 
 
 def get_leaf_nodes(nodes: List[BaseNode]) -> List[BaseNode]:
     """Get leaf nodes."""
-    leaf_nodes = []
-    for node in nodes:
-        if NodeRelationship.CHILD not in node.relationships:
-            leaf_nodes.append(node)
-    return leaf_nodes
+    return [
+        node
+        for node in nodes
+        if NodeRelationship.CHILD not in node.relationships
+    ]
 
 
 def get_root_nodes(nodes: List[BaseNode]) -> List[BaseNode]:
     """Get root nodes."""
-    root_nodes = []
-    for node in nodes:
-        if NodeRelationship.PARENT not in node.relationships:
-            root_nodes.append(node)
-    return root_nodes
+    return [
+        node
+        for node in nodes
+        if NodeRelationship.PARENT not in node.relationships
+    ]
 
 
 class HierarchicalNodeParser(NodeParser):
@@ -114,12 +114,15 @@ class HierarchicalNodeParser(NodeParser):
             text_splitter_ids = [
                 f"chunk_size_{chunk_size}" for chunk_size in chunk_sizes
             ]
-            text_splitter_map = {}
-            for chunk_size, text_splitter_id in zip(chunk_sizes, text_splitter_ids):
-                text_splitter_map[text_splitter_id] = get_default_text_splitter(
+            text_splitter_map = {
+                text_splitter_id: get_default_text_splitter(
                     chunk_size=chunk_size,
                     callback_manager=callback_manager,
                 )
+                for chunk_size, text_splitter_id in zip(
+                    chunk_sizes, text_splitter_ids
+                )
+            }
         else:
             if chunk_sizes is not None:
                 raise ValueError(

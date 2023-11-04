@@ -84,12 +84,12 @@ class GithubRepositoryReader(BaseReader):
         super().__init__()
         if github_token is None:
             github_token = os.getenv("GITHUB_TOKEN")
-            if github_token is None:
-                raise ValueError(
-                    "Please provide a Github token. "
-                    "You can do so by passing it as an argument or "
-                    + "by setting the GITHUB_TOKEN environment variable."
-                )
+        if github_token is None:
+            raise ValueError(
+                "Please provide a Github token. "
+                "You can do so by passing it as an argument or "
+                + "by setting the GITHUB_TOKEN environment variable."
+            )
 
         self._owner = owner
         self._repo = repo
@@ -348,15 +348,15 @@ class GithubRepositoryReader(BaseReader):
             + f"as {file_extension} with "
             + f"{reader.__class__.__name__}",
         )
-        with tempfile.TemporaryDirectory() as tmpdirname, tempfile.NamedTemporaryFile(
-            dir=tmpdirname,
-            suffix=f".{file_extension}",
-            mode="w+b",
-            delete=False,
-        ) as tmpfile:
+        with (tempfile.TemporaryDirectory() as tmpdirname, tempfile.NamedTemporaryFile(
+                dir=tmpdirname,
+                suffix=f".{file_extension}",
+                mode="w+b",
+                delete=False,
+            ) as tmpfile):
             print_if_verbose(
                 self._verbose,
-                "created a temporary file" + f"{tmpfile.name} for parsing {file_path}",
+                f"created a temporary file{tmpfile.name} for parsing {file_path}",
             )
             tmpfile.write(file_content)
             tmpfile.flush()

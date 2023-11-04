@@ -37,7 +37,7 @@ try:
 
     es_license = es_client.license.get()
     basic_license: bool = es_license["license"]["type"] == "basic"
-except (ImportError, Exception):
+except Exception:
     elasticsearch_not_available = True
     basic_license = True
 

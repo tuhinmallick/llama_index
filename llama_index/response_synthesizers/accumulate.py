@@ -42,10 +42,7 @@ class Accumulate(BaseSynthesizer):
         return [item for sublist in md_array for item in sublist]
 
     def _format_response(self, outputs: List[Any], separator: str) -> str:
-        responses: List[str] = []
-        for response in outputs:
-            responses.append(response or "Empty Response")
-
+        responses: List[str] = [(response or "Empty Response") for response in outputs]
         return separator.join(
             [f"Response {index + 1}: {item}" for index, item in enumerate(responses)]
         )

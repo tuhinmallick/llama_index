@@ -244,10 +244,7 @@ class WandbCallbackHandler(BaseCallbackHandler):
 
             if len(child_nodes) == 1:
                 child_nodes = self._trace_map[child_nodes[0]]
-                root_span = self._build_trace_tree(child_nodes, root_span)
-            else:
-                root_span = self._build_trace_tree(child_nodes, root_span)
-            if root_span:
+            if root_span := self._build_trace_tree(child_nodes, root_span):
                 root_trace = self._trace_tree.WBTraceTree(root_span)
                 if self._wandb.run:
                     self._wandb.run.log({"trace": root_trace})
@@ -377,34 +374,32 @@ class WandbCallbackHandler(BaseCallbackHandler):
     ) -> Union[None, "trace_tree.SpanKind"]:
         """Map a CBEventType to a wandb trace tree SpanKind."""
         if event_type == CBEventType.CHUNKING:
-            span_kind = None
+            return None
         elif event_type == CBEventType.NODE_PARSING:
-            span_kind = None
+            return None
         elif event_type == CBEventType.EMBEDDING:
             # TODO: add span kind for EMBEDDING when it's available
-            span_kind = None
+            return None
         elif event_type == CBEventType.LLM:
-            span_kind = self._trace_tree.SpanKind.LLM
+            return self._trace_tree.SpanKind.LLM
         elif event_type == CBEventType.QUERY:
-            span_kind = self._trace_tree.SpanKind.AGENT
+            return self._trace_tree.SpanKind.AGENT
         elif event_type == CBEventType.AGENT_STEP:
-            span_kind = self._trace_tree.SpanKind.AGENT
+            return self._trace_tree.SpanKind.AGENT
         elif event_type == CBEventType.RETRIEVE:
-            span_kind = self._trace_tree.SpanKind.TOOL
+            return self._trace_tree.SpanKind.TOOL
         elif event_type == CBEventType.SYNTHESIZE:
-            span_kind = self._trace_tree.SpanKind.CHAIN
+            return self._trace_tree.SpanKind.CHAIN
         elif event_type == CBEventType.TREE:
-            span_kind = self._trace_tree.SpanKind.CHAIN
+            return self._trace_tree.SpanKind.CHAIN
         elif event_type == CBEventType.SUB_QUESTION:
-            span_kind = self._trace_tree.SpanKind.CHAIN
+            return self._trace_tree.SpanKind.CHAIN
         elif event_type == CBEventType.RERANKING:
-            span_kind = self._trace_tree.SpanKind.CHAIN
+            return self._trace_tree.SpanKind.CHAIN
         elif event_type == CBEventType.FUNCTION_CALL:
-            span_kind = self._trace_tree.SpanKind.TOOL
+            return self._trace_tree.SpanKind.TOOL
         else:
-            span_kind = None
-
-        return span_kind
+            return None
 
     def _add_payload_to_span(
         self, span: "trace_tree.Span", event_pair: List[CBEvent]
@@ -503,12 +498,10 @@ class WandbCallbackHandler(BaseCallbackHandler):
         event_pair: List[CBEvent],
     ) -> Tuple[Optional[Dict[str, Any]], Dict[str, Any]]:
         event_pair[0].payload
-        outputs = event_pair[-1].payload
-
-        chunks = []
-        if outputs:
+        if outputs := event_pair[-1].payload:
             chunks = outputs.get(EventPayload.CHUNKS, [])
-
+        else:
+            chunks = []
         return {}, {"num_chunks": len(chunks)}
 
     def _get_time_in_ms(self, event_pair: List[CBEvent]) -> Tuple[int, int]:

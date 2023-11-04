@@ -161,7 +161,4 @@ def generate_ce_fine_tuning_dataset(
                         query=question, context=node_content, score=0
                     )
                     ce_dataset_list.append(question_row)
-                else:
-                    pass
-
     return ce_dataset_list

@@ -25,11 +25,7 @@ def load_index_from_storage(
         **kwargs: Additional keyword args to pass to the index constructors.
     """
     index_ids: Optional[Sequence[str]]
-    if index_id is None:
-        index_ids = None
-    else:
-        index_ids = [index_id]
-
+    index_ids = None if index_id is None else [index_id]
     indices = load_indices_from_storage(storage_context, index_ids=index_ids, **kwargs)
 
     if len(indices) == 0:

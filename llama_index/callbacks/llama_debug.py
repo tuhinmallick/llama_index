@@ -171,8 +171,7 @@ class LlamaDebugHandler(BaseCallbackHandler):
 
     def _print_trace_map(self, cur_event_id: str, level: int = 0) -> None:
         """Recursively print trace map to terminal for debugging."""
-        event_pair = self._event_pairs_by_id[cur_event_id]
-        if event_pair:
+        if event_pair := self._event_pairs_by_id[cur_event_id]:
             time_stats = self._get_time_stats_from_event_pairs([event_pair])
             indent = " " * level * 2
             print(

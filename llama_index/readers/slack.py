@@ -109,11 +109,8 @@ class SlackReader(BasePydanticReader):
                         "ts": message_ts,
                         "cursor": next_cursor,
                         "latest": str(self.latest_date_timestamp),
+                        "oldest": str(self.earliest_date_timestamp),
                     }
-                    if self.earliest_date_timestamp is not None:
-                        conversations_replies_kwargs["oldest"] = str(
-                            self.earliest_date_timestamp
-                        )
                     result = self._client.conversations_replies(
                         **conversations_replies_kwargs  # type: ignore
                     )
@@ -126,9 +123,7 @@ class SlackReader(BasePydanticReader):
             except SlackApiError as e:
                 if e.response["error"] == "ratelimited":
                     logger.error(
-                        "Rate limit error reached, sleeping for: {} seconds".format(
-                            e.response.headers["retry-after"]
-                        )
+                        f'Rate limit error reached, sleeping for: {e.response.headers["retry-after"]} seconds'
                     )
                     time.sleep(int(e.response.headers["retry-after"]))
                 else:
@@ -177,9 +172,7 @@ class SlackReader(BasePydanticReader):
             except SlackApiError as e:
                 if e.response["error"] == "ratelimited":
                     logger.error(
-                        "Rate limit error reached, sleeping for: {} seconds".format(
-                            e.response.headers["retry-after"]
-                        )
+                        f'Rate limit error reached, sleeping for: {e.response.headers["retry-after"]} seconds'
                     )
                     time.sleep(int(e.response.headers["retry-after"]))
                 else:

@@ -15,12 +15,10 @@ def get_numbered_text_from_nodes(
 
     """
     results = []
-    number = 1
-    for node in node_list:
+    for number, node in enumerate(node_list, start=1):
         node_text = " ".join(node.get_content().splitlines())
         if text_splitter is not None:
             node_text = truncate_text(node_text, text_splitter)
         text = f"({number}) {node_text}"
         results.append(text)
-        number += 1
     return "\n\n".join(results)

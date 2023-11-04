@@ -33,7 +33,7 @@ def load_embed_model(data: dict) -> BaseEmbedding:
     if name == LangchainEmbedding.class_name():
         local_name = data.get("model_name", None)
         if local_name is not None:
-            return resolve_embed_model("local:" + local_name)
+            return resolve_embed_model(f"local:{local_name}")
         else:
             raise ValueError("LangchainEmbedding requires a model_name")
 

@@ -135,7 +135,7 @@ class BaseSynthesizer(PromptMixin):
         additional_source_nodes: Optional[Sequence[NodeWithScore]] = None,
         **response_kwargs: Any,
     ) -> RESPONSE_TYPE:
-        if len(nodes) == 0:
+        if not nodes:
             return Response("Empty Response")
 
         if isinstance(query, str):
@@ -168,7 +168,7 @@ class BaseSynthesizer(PromptMixin):
         additional_source_nodes: Optional[Sequence[NodeWithScore]] = None,
         **response_kwargs: Any,
     ) -> RESPONSE_TYPE:
-        if len(nodes) == 0:
+        if not nodes:
             return Response("Empty Response")
 
         if isinstance(query, str):

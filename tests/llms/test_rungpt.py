@@ -47,14 +47,15 @@ def mock_chat_completion(*args: Any, **kwargs: Any) -> Dict[str, Any]:
 
 
 def mock_completion_stream(*args: Any, **kwargs: Any) -> Generator[str, None, None]:
-    # Example taken from rungpt example inferece code on github repo.
-    events = [
+    yield from [
         str(
             {
                 "id": None,
                 "object": "text_completion",
                 "created": 1692891964,
-                "choices": [{"text": "This", "finish_reason": None, "index": 0.0}],
+                "choices": [
+                    {"text": "This", "finish_reason": None, "index": 0.0}
+                ],
                 "prompt": "This",
                 "usage": {
                     "completion_tokens": 1,
@@ -68,7 +69,9 @@ def mock_completion_stream(*args: Any, **kwargs: Any) -> Generator[str, None, No
                 "id": None,
                 "object": "text_completion",
                 "created": 1692891964,
-                "choices": [{"text": " is", "finish_reason": None, "index": 0.0}],
+                "choices": [
+                    {"text": " is", "finish_reason": None, "index": 0.0}
+                ],
                 "prompt": " is",
                 "usage": {
                     "completion_tokens": 2,
@@ -82,7 +85,9 @@ def mock_completion_stream(*args: Any, **kwargs: Any) -> Generator[str, None, No
                 "id": None,
                 "object": "text_completion",
                 "created": 1692891964,
-                "choices": [{"text": " test.", "finish_reason": None, "index": 0.0}],
+                "choices": [
+                    {"text": " test.", "finish_reason": None, "index": 0.0}
+                ],
                 "prompt": " test.",
                 "usage": {
                     "completion_tokens": 3,
@@ -92,14 +97,12 @@ def mock_completion_stream(*args: Any, **kwargs: Any) -> Generator[str, None, No
             }
         ),
     ]
-    yield from events
 
 
 def mock_chat_completion_stream(
     *args: Any, **kwargs: Any
 ) -> Generator[str, None, None]:
-    # Example taken from rungpt example inferece code on github repo.
-    events = [
+    yield from [
         str(
             {
                 "id": None,
@@ -161,7 +164,6 @@ def mock_chat_completion_stream(
             }
         ),
     ]
-    yield from events
 
 
 def mock_chat_history(*args: Any, **kwargs: Any) -> List[ChatMessage]:

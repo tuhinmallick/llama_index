@@ -205,10 +205,7 @@ class MyScaleVectorStore(VectorStore):
             f"= '{filter_item.value}'"
             for filter_item in exact_match_filter
         )
-        if where_str is None:
-            where_str = filter_str
-        else:
-            where_str = " AND " + filter_str
+        where_str = filter_str if where_str is None else f" AND {filter_str}"
         return where_str
 
     def add(

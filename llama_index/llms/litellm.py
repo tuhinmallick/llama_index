@@ -64,15 +64,12 @@ class LiteLLM(LLM):
         callback_manager: Optional[CallbackManager] = None,
         **kwargs: Any,
     ) -> None:
-        if "custom_llm_provider" in kwargs:
-            if (
-                kwargs["custom_llm_provider"] != "ollama"
-                and kwargs["custom_llm_provider"] != "vllm"
-            ):  # don't check keys for local models
-                validate_litellm_api_key(api_key, api_type)
-        else:  # by default assume it's a hosted endpoint
+        if (
+            "custom_llm_provider" in kwargs
+            and kwargs["custom_llm_provider"] not in ["ollama", "vllm"]
+            or "custom_llm_provider" not in kwargs
+        ):  # don't check keys for local models
             validate_litellm_api_key(api_key, api_type)
-
         additional_kwargs = additional_kwargs or {}
         if api_key is not None:
             additional_kwargs["api_key"] = api_key

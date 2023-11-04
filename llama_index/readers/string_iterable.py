@@ -32,8 +32,4 @@ class StringIterableReader(BasePydanticReader):
 
     def load_data(self, texts: List[str]) -> List[Document]:
         """Load the data."""
-        results = []
-        for text in texts:
-            results.append(Document(text=text))
-
-        return results
+        return [Document(text=text) for text in texts]

@@ -92,10 +92,7 @@ class SQLContextContainerBuilder:
 
     def _get_context_dict(self, ignore_db_schema: bool) -> Dict[str, str]:
         """Get full context dict."""
-        if ignore_db_schema:
-            return self.context_dict
-        else:
-            return self.full_context_dict
+        return self.context_dict if ignore_db_schema else self.full_context_dict
 
     def derive_index_from_context(
         self,

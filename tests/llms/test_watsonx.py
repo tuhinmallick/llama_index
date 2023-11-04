@@ -15,8 +15,7 @@ from llama_index.llms.watsonx import WatsonX
 
 class MockStreamResponse:
     def __iter__(self) -> Generator[str, Any, None]:
-        deltas = ["\n\nThis ", "is indeed", " a test"]
-        yield from deltas
+        yield from ["\n\nThis ", "is indeed", " a test"]
 
 
 class MockIBMModelModule(MagicMock):
