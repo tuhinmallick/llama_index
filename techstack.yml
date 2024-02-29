@@ -2,7 +2,7 @@ repo_name: tuhinmallick/llama_index
 report_id: d9538386b12226622120d7a478f214d7
 version: 0.1
 repo_type: Public
-timestamp: '2024-02-19T00:18:47+00:00'
+timestamp: '2024-02-29T20:06:59+00:00'
 requested_by: Disiok
 provider: github
 branch: main
@@ -243,6 +243,12 @@ tools:
     detected_date: Dec 8
     severity: high
     first_patched: 0.0.329
+  - name: langchain Server-Side Request Forgery vulnerability
+    cve_id: CVE-2024-0243
+    cve_url: https://github.com/advisories/GHSA-h9j7-5xvc-qhg5
+    detected_date: Feb 27
+    severity: low
+    first_patched: 0.1.0
 - name: nest-asyncio
   description: Patch asyncio to allow nested event loops
   package_url: https://pypi.org/project/nest-asyncio
