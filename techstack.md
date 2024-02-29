@@ -40,7 +40,7 @@ Full tech stack [here](/techstack.md)
 # Tech Stack File
 ![](https://img.stackshare.io/repo.svg "repo") [tuhinmallick/llama_index](https://github.com/tuhinmallick/llama_index)![](https://img.stackshare.io/public_badge.svg "public")
 <br/><br/>
-|32<br/>Tools used|02/19/24 <br/>Report generated|
+|32<br/>Tools used|02/29/24 <br/>Report generated|
 |------|------|
 </div>
 
@@ -165,7 +165,7 @@ Full tech stack [here](/techstack.md)
 |[deprecated](https://pypi.org/project/deprecated)|v1.2.14|10/22/23|Karan Acharya |MIT|N/A|
 |[docutils](https://pypi.org/project/docutils)|v0.16|04/16/23|Jerry Liu |Unlicense,Python-2.0,BSD-2-Clause,CNRI-Python-GPL-Compatible|N/A|
 |[fsspec](https://pypi.org/project/fsspec)|v2023.10.0|10/11/23|Logan |BSD-3-Clause|N/A|
-|[langchain](https://pypi.org/project/langchain)|v0.0.327|10/30/23|David Chiu |N/A|[CVE-2023-32786](https://github.com/advisories/GHSA-6h8p-4hx9-w66c) (High)|
+|[langchain](https://pypi.org/project/langchain)|v0.0.327|10/30/23|David Chiu |N/A|[CVE-2023-32786](https://github.com/advisories/GHSA-6h8p-4hx9-w66c) (High)<br/>[CVE-2024-0243](https://github.com/advisories/GHSA-h9j7-5xvc-qhg5) (Low)|
 |[nest-asyncio](https://pypi.org/project/nest-asyncio)|v1.5.8|10/25/23|James Braza |BSD-2-Clause|N/A|
 |[nltk](https://pypi.org/project/nltk)|v3.8.1|10/11/23|Logan |Apache-2.0|N/A|
 |[numpy](https://pypi.org/project/numpy)|v1.24.4|10/11/23|Logan |BSD-3-Clause|N/A|
